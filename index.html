@@ -3,254 +3,273 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Lotto — 幸運多組選號系統</title>
+<title>橡子森林 — 幸運搖號機</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Noto+Sans+TC:wght@400;700;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Noto+Sans+TC:wght@500;700;900&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg:       #080e1f;
-    --surface:  #0f1c3a;
-    --gold:     #f5c842;
-    --gold-dim: #b8901e;
-    --red:      #d92b3a;
-    --red-glow: rgba(217,43,58,0.45);
-    --white:    #ffffff;
-    --silver:   #a8b4cc;
-    --ball-shadow: 0 6px 16px rgba(0,0,0,0.5);
+    /* 吉卜力森林系遊戲配色 */
+    --bg-sky:      #e0f2fe; /* 晴空藍 */
+    --forest-dark: #2d5a27; /* 茂密森林綠 */
+    --forest-leaf: #4c9e45; /* 嫩葉綠 */
+    --wood-light:  #fbf4e9; /* 溫馨牛皮紙白 */
+    --wood-dark:   #6d4c41; /* 橡木棕 */
+    --acorn-gold:  #ffb300; /* 橡子金黃 */
+    --totoro-grey: #78909c; /* 龍貓毛色灰 */
+    --berry-red:   #e53935; /* 森林覆盆莓紅 */
+    
+    --card-shadow: 0 12px 28px rgba(109, 76, 65, 0.15), 0 4px 8px rgba(0,0,0,0.05);
+    --ball-shadow: 0 6px 12px rgba(109, 76, 65, 0.3);
   }
 
   body {
-    background: var(--bg);
-    color: var(--white);
+    background: var(--bg-sky);
+    color: var(--wood-dark);
     font-family: 'Noto Sans TC', sans-serif;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 40px 20px 60px;
-    background-image:
-      radial-gradient(ellipse 80% 40% at 50% 0%, rgba(245,200,66,0.08) 0%, transparent 70%),
-      radial-gradient(ellipse 60% 30% at 50% 100%, rgba(15,28,58,0.9) 0%, transparent 80%);
+    /* 仿草地與晴空漸層，並帶有童話感 */
+    background-image: 
+      linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 40%, #f0fdf4 70%, #dcfce7 100%);
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* 仿手繪小草裝飾 */
+  body::after {
+    content: "🌱 🌿 🍄 🌱";
+    position: fixed;
+    bottom: 10px;
+    font-size: 24px;
+    opacity: 0.7;
+    letter-spacing: 20px;
+    pointer-events: none;
   }
 
   /* ── Header ── */
   header {
     text-align: center;
     margin-bottom: 24px;
+    position: relative;
+    z-index: 2;
   }
   .badge {
     display: inline-block;
-    background: var(--gold);
-    color: var(--bg);
-    font-family: 'Oswald', sans-serif;
-    font-size: 11px;
-    letter-spacing: 3px;
-    padding: 4px 14px;
-    border-radius: 2px;
-    margin-bottom: 16px;
-    text-transform: uppercase;
+    background: var(--forest-leaf);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    padding: 6px 16px;
+    border-radius: 50px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 10px rgba(76, 158, 69, 0.2);
   }
   h1 {
-    font-family: 'Oswald', sans-serif;
-    font-size: clamp(42px, 8vw, 68px);
-    letter-spacing: -1px;
-    line-height: 1;
-    background: linear-gradient(135deg, #f5c842 0%, #ffe98a 50%, #c8930a 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: none;
-    margin-bottom: 10px;
+    font-size: clamp(32px, 6vw, 48px);
+    font-weight: 900;
+    color: var(--forest-dark);
+    text-shadow: 2px 2px 0px var(--wood-light), 4px 4px 0px rgba(0,0,0,0.05);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
   }
   .subtitle {
-    color: var(--silver);
+    color: #5d7068;
     font-size: 14px;
-    letter-spacing: 1px;
+    font-weight: 700;
+    background: rgba(255,255,255,0.4);
+    padding: 4px 12px;
+    border-radius: 20px;
+    display: inline-block;
   }
 
-  /* ── Mode Tabs ── */
+  /* ── Mode Tabs (遊戲選單切換風) ── */
   .tabs {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 24px;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 6px;
-    border-radius: 30px;
-    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(109, 76, 6 brown, 0.05);
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 8px;
+    border-radius: 40px;
+    border: 3px solid var(--wood-dark);
     width: 100%;
     max-width: 680px;
+    box-shadow: 0 6px 0px var(--wood-dark);
   }
   .tab-btn {
     flex: 1;
-    padding: 10px 16px;
+    padding: 12px 16px;
     border: none;
     background: transparent;
-    color: var(--silver);
-    font-weight: 700;
-    font-size: 15px;
+    color: #8d6e63;
+    font-weight: 900;
+    font-size: 16px;
     cursor: pointer;
-    border-radius: 20px;
-    transition: all 0.2s;
+    border-radius: 30px;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     white-space: nowrap;
   }
   .tab-btn.active {
-    background: var(--gold);
-    color: #1a0e00;
-    box-shadow: 0 4px 12px rgba(245,200,66,0.2);
+    background: var(--forest-leaf);
+    color: white;
+    transform: scale(1.05);
+    border: 2px solid var(--forest-dark);
+    box-shadow: 0 4px 12px rgba(76,158,69,0.3);
   }
 
-  /* ── Ticket card ── */
+  /* ── Ticket card (橡木手繪佈告欄) ── */
   .ticket {
-    background: var(--surface);
-    border: 1px solid rgba(245,200,66,0.18);
-    border-radius: 20px;
-    padding: 32px;
+    background: var(--wood-light);
+    border: 4px solid var(--wood-dark);
+    border-radius: 28px;
+    padding: 28px;
     width: 100%;
     max-width: 680px;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+    box-shadow: 0 16px 0px rgba(109,76,65,0.2), var(--card-shadow);
     position: relative;
-    overflow: hidden;
-  }
-  .ticket::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, transparent, var(--gold), transparent);
-    opacity: 0.7;
   }
 
-  /* ── 控制面板 (組數選擇) ── */
+  /* ── 控制面板 (RPG遊戲選項風格) ── */
   .control-panel {
     display: flex;
     align-items: center;
     gap: 12px;
-    background: rgba(255, 255, 255, 0.03);
-    padding: 12px 18px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: rgba(109, 76, 65, 0.04);
+    padding: 14px 20px;
+    border-radius: 18px;
+    margin-bottom: 24px;
+    border: 2px dashed rgba(109, 76, 65, 0.2);
   }
   .control-panel label {
-    font-size: 14px;
-    color: var(--silver);
+    font-size: 15px;
+    color: var(--wood-dark);
     font-weight: 700;
   }
   .control-panel select {
-    background: #080e1f;
-    color: var(--gold);
-    border: 1px solid rgba(245,200,66,0.3);
-    padding: 6px 12px;
-    border-radius: 6px;
-    font-family: 'Oswald', sans-serif;
+    background: white;
+    color: var(--forest-dark);
+    border: 2px solid var(--wood-dark);
+    padding: 6px 16px;
+    border-radius: 12px;
     font-size: 16px;
+    font-weight: 700;
     cursor: pointer;
     outline: none;
-  }
-  .control-panel select:focus {
-    border-color: var(--gold);
+    box-shadow: 0 3px 0px var(--wood-dark);
   }
 
   .section-label {
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--silver);
+    font-size: 13px;
+    font-weight: 900;
+    color: #8d6e63;
     margin-bottom: 16px;
     display: flex;
     align-items: center;
     gap: 10px;
+    text-transform: uppercase;
   }
   .section-label::after {
     content: '';
     flex: 1;
-    height: 1px;
-    background: rgba(168,180,204,0.2);
+    height: 2px;
+    background: rgba(109, 76, 65, 0.15);
   }
 
-  /* ── Container for Dynamic Groups ── */
+  /* ── 號碼球容器 ── */
   .groups-container {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 18px;
     margin-bottom: 28px;
     max-height: 400px;
     overflow-y: auto;
     padding-right: 4px;
   }
-  .groups-container::-webkit-scrollbar { width: 6px; }
-  .groups-container::-webkit-scrollbar-thumb { background: rgba(245,200,66,0.2); border-radius: 3px; }
 
   .group-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     flex-wrap: wrap;
-    background: rgba(255, 255, 255, 0.02);
-    padding: 12px 16px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: white;
+    padding: 14px 18px;
+    border-radius: 20px;
+    border: 2px solid rgba(109, 76, 65, 0.12);
+    box-shadow: 0 4px 0px rgba(109, 76, 65, 0.05);
   }
 
   .group-tag {
-    font-family: 'Oswald', sans-serif;
-    font-size: 12px;
-    color: var(--gold);
-    background: rgba(245,200,66,0.1);
-    padding: 4px 8px;
-    border-radius: 4px;
-    min-width: 55px;
+    font-size: 13px;
+    font-weight: 900;
+    color: white;
+    background: var(--totoro-grey);
+    padding: 6px 12px;
+    border-radius: 10px;
+    min-width: 65px;
     text-align: center;
   }
 
+  /* ── 療癒感圓潤號碼球 ── */
   .ball {
-    width: 48px;
-    height: 48px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Oswald', sans-serif;
+    font-family: 'Fredoka One', 'Noto Sans TC', sans-serif;
     font-size: 18px;
     font-weight: 700;
     flex-shrink: 0;
-    transition: transform 0.2s;
     position: relative;
+    border: 2px solid var(--wood-dark);
   }
 
+  /* 金黃色球 - 溫暖色調像發光的果實 */
   .ball.gold {
-    background: radial-gradient(circle at 35% 30%, #ffe98a, #f5c842 50%, #a0720a);
-    color: #3a2000;
+    background: radial-gradient(circle at 35% 30%, #fffde7, #ffca28 60%, #ffa000);
+    color: var(--wood-dark);
     box-shadow: var(--ball-shadow);
   }
+  /* 紅色球 - 特別號改為成熟的紅漿果 */
   .ball.red {
-    background: radial-gradient(circle at 35% 30%, #ff7a85, #d92b3a 50%, #7a0e18);
-    color: #fff;
-    box-shadow: var(--ball-shadow), 0 0 12px var(--red-glow);
+    background: radial-gradient(circle at 35% 30%, #ffeff0, #ef5350 60%, #b71c1c);
+    color: white;
+    box-shadow: var(--ball-shadow);
   }
+  /* 空白球 - 手繪虛線小松果造型感 */
   .ball.empty {
-    background: rgba(255,255,255,0.05);
-    border: 2px dashed rgba(168,180,204,0.25);
-    color: rgba(168,180,204,0.3);
-    font-size: 15px;
+    background: rgba(109, 76, 65, 0.03);
+    border: 2px dashed rgba(109, 76, 65, 0.25);
+    color: rgba(109, 76, 65, 0.3);
   }
+  
   .ball.popping {
-    animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   }
   @keyframes pop {
-    0%   { transform: scale(0); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
+    0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
   }
 
   .divider {
-    width: 2px;
-    height: 32px;
-    background: rgba(217,43,58,0.4);
-    margin: 0 4px;
+    width: 3px;
+    height: 28px;
+    background: rgba(109, 76, 65, 0.2);
+    border-radius: 2px;
+    margin: 0 2px;
   }
 
-  /* ── Number grid ── */
+  /* ── 號碼分佈格子（落葉泥土感盤面） ── */
   .grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -260,125 +279,150 @@
   .grid-num {
     width: 36px;
     height: 36px;
-    border-radius: 50%;
+    border-radius: 10px; /* 溫和的圓角方形 */
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Oswald', sans-serif;
+    font-family: 'Fredoka One', sans-serif;
     font-size: 13px;
-    background: rgba(255,255,255,0.05);
-    color: var(--silver);
-    border: 1px solid rgba(255,255,255,0.06);
+    font-weight: 700;
+    background: white;
+    color: #bcaaa4;
+    border: 2px solid rgba(109, 76, 65, 0.1);
     margin: 0 auto;
+    transition: all 0.2s;
   }
   .grid-num.picked-gold {
-    background: radial-gradient(circle at 35% 30%, #ffe98a, #f5c842 50%, #a0720a);
-    color: #3a2000;
-    box-shadow: 0 0 10px rgba(245,200,66,0.4);
+    background: var(--acorn-gold);
+    color: var(--wood-dark);
+    border-color: var(--wood-dark);
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(255,179,0,0.3);
   }
   .grid-num.picked-red {
-    background: radial-gradient(circle at 35% 30%, #ff7a85, #d92b3a 50%, #7a0e18);
-    color: #fff;
-    box-shadow: 0 0 10px var(--red-glow);
+    background: var(--berry-red);
+    color: white;
+    border-color: var(--wood-dark);
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(229,57,53,0.3);
   }
 
-  /* ── Buttons ── */
-  .actions { display: flex; gap: 12px; }
+  /* ── 遊戲動作按鈕 (木牌壓印風) ── */
+  .actions { display: flex; gap: 14px; }
   .btn-primary {
     flex: 1;
     padding: 16px 24px;
-    background: linear-gradient(135deg, #f5c842, #e0a800);
-    color: #1a0e00;
+    background: linear-gradient(to bottom, #81c784, #4caf50);
+    color: white;
     font-weight: 900;
-    font-size: 16px;
-    border: none;
-    border-radius: 12px;
+    font-size: 18px;
+    border: 3px solid var(--forest-dark);
+    border-radius: 16px;
     cursor: pointer;
     letter-spacing: 1px;
-    box-shadow: 0 4px 20px rgba(245,200,66,0.35);
+    box-shadow: 0 6px 0px var(--forest-dark);
+    transition: all 0.1s;
   }
-  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,200,66,0.5); }
-  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-primary:hover {
+    transform: translateY(2px);
+    box-shadow: 0 4px 0px var(--forest-dark);
+  }
+  .btn-primary:active {
+    transform: translateY(6px);
+    box-shadow: 0 0px 0px var(--forest-dark);
+  }
+  .btn-primary:disabled {
+    background: #cfd8dc;
+    border-color: #90a4ae;
+    color: #78909c;
+    box-shadow: 0 4px 0px #90a4ae;
+    cursor: not-allowed;
+    transform: none !important;
+  }
   .btn-secondary {
-    padding: 16px 20px;
-    background: transparent;
-    color: var(--silver);
+    padding: 16px 22px;
+    background: #e0e0e0;
+    color: var(--wood-dark);
     font-weight: 700;
-    border: 1px solid rgba(168,180,204,0.3);
-    border-radius: 12px;
+    font-size: 15px;
+    border: 3px solid #9e9e9e;
+    border-radius: 16px;
+    box-shadow: 0 4px 0px #9e9e9e;
     cursor: pointer;
+  }
+  .btn-secondary:active {
+    transform: translateY(4px);
+    box-shadow: 0 0px 0px #9e9e9e;
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="badge">台灣彩券自動選號機</div>
-  <h1 id="mainTitle">多組選擇幸運號碼</h1>
-  <p class="subtitle" id="subTitle"></p>
+  <div class="badge">🍃 森林廣播 API 連線版</div>
+  <h1 id="mainTitle">🌰 威力彩多組選號</h1>
+  <p class="subtitle" id="subTitle">呼叫 /superlotto 獲取多組幸運號碼</p>
 </header>
 
 <div class="tabs">
-  <button class="tab-btn active" id="tab-superlotto" onclick="switchMode('superlotto')">大樂透模式 (Superlotto)</button>
-  <button class="tab-btn" id="tab-539" onclick="switchMode('539')">今彩 539 模式 (Daily 539)</button>
+  <button class="tab-btn active" id="tab-superlotto" onclick="switchMode('superlotto')">🪵 威力彩模式</button>
+  <button class="tab-btn" id="tab-539" onclick="switchMode('539')">🐾 今彩 539 模式</button>
 </div>
 
 <div class="ticket">
   <div class="control-panel" id="controlPanel">
-    <label for="countSelect">選擇產生組數：</label>
+    <label for="countSelect">🪵 挑選你要的注數：</label>
     <select id="countSelect" onchange="reset()">
-      <option value="1">1 組</option>
-      <option value="2">2 組</option>
-      <option value="3" selected>3 組</option>
-	  <option value="4">4 組</option>
-      <option value="5">5 組</option>
-      <option value="10">10 組</option>
+      <option value="1">1 注袋</option>
+      <option value="2">2 注袋</option>
+      <option value="3" selected>3 注袋</option>
+      <option value="5">5 注袋</option>
+      <option value="10">10 注袋</option>
     </select>
   </div>
 
-  <div class="section-label" id="panelLabel">本次產生號碼</div>
+  <div class="section-label" id="panelLabel">🌰 搖出的橡子果實</div>
   
   <div class="groups-container" id="groupsContainer"></div>
 
-  <div class="section-label" id="gridLabel">號碼分佈盤 (所有開出號碼總覽)</div>
+  <div class="section-label" id="gridLabel">🍄 號碼落葉盤</div>
   <div class="grid" id="numGrid"></div>
 
   <div class="actions">
-    <button class="btn-primary" id="drawBtn" onclick="draw()">✦ 開始開獎</button>
-    <button class="btn-secondary" onclick="reset()">清除</button>
+    <button class="btn-primary" id="drawBtn" onclick="draw()">✨ 召喚幸運號碼</button>
+    <button class="btn-secondary" onclick="reset()">歸零</button>
   </div>
 </div>
 
 <script>
-  // 兩種模式各自的球數規格設定
+  // 保持你原本完美的 API 核心連動邏輯不變
   const modeConfigs = {
     superlotto: {
-      title: '威力彩多組選號',
+      title: '🌰 威力彩幸運選號',
       subtitle: '呼叫 /superlotto 獲取多組幸運號碼',
-      gridTotal: 49,     // 面板總球數
-      mainPick: 6,       // 主號開幾個
-      hasSpecial: true,  // 有無特別號
-      apiTemplate: (count) => `https://ai-lotto-4lk9.onrender.com`
+      gridTotal: 49,
+      mainPick: 6,
+      hasSpecial: true,
+      apiTemplate: (count) => `https://ai-lotto-api.onrender.com/api/v1/lottery/superlotto?count=${count}`
     },
     '539': {
-      title: '今彩 539 多組選號',
+      title: '🐾 今彩 539 森林選號',
       subtitle: '呼叫 /539/super 獲取多組 539 幸運號碼',
-      gridTotal: 39,     // 539 只到 39 號
-      mainPick: 5,       // 主號開 5 個
-      hasSpecial: false, // 539 無特別號
-      apiTemplate: (count) => `https://ai-lotto-4lk9.onrender.com`
+      gridTotal: 39,
+      mainPick: 5,
+      hasSpecial: false,
+      apiTemplate: (count) => `https://ai-lotto-api.onrender.com/api/v1/lottery/539/super?count=${count}`
     }
   };
 
   let currentMode = 'superlotto';
 
-  // 初始化號碼盤面
   function buildGrid() {
     const grid = document.getElementById('numGrid');
     grid.innerHTML = '';
     const config = modeConfigs[currentMode];
     
-    document.getElementById('gridLabel').textContent = `號碼分佈盤 (01 – ${config.gridTotal})`;
+    document.getElementById('gridLabel').textContent = `🍄 號碼落葉盤 (01 – ${config.gridTotal})`;
 
     for (let i = 1; i <= config.gridTotal; i++) {
       const el = document.createElement('div');
@@ -389,7 +433,6 @@
     }
   }
 
-  // 切換模式
   function switchMode(mode) {
     if (currentMode === mode) return;
     currentMode = mode;
@@ -404,7 +447,6 @@
     reset();
   }
 
-  // 根據選擇的組數，動態長出「問號」空球框架
   function initEmptyRows() {
     const container = document.getElementById('groupsContainer');
     container.innerHTML = '';
@@ -417,12 +459,10 @@
       row.className = 'group-row';
       row.innerHTML = `<div class="group-tag">第 ${g+1} 注</div>`;
       
-      // 產生主號空框架
       for(let i = 0; i < config.mainPick; i++) {
         row.innerHTML += `<div class="ball empty">?</div>`;
       }
       
-      // 如果有特別號，加上分隔線與特別號框
       if (config.hasSpecial) {
         row.innerHTML += `<div class="divider"></div><div class="ball empty">?</div>`;
       }
@@ -431,7 +471,6 @@
     }
   }
 
-  // 前端備用 Mock 機制 (避免後端沒開時網頁掛掉)
   function getMockData(mode, count) {
     const config = modeConfigs[mode];
     const genGroup = () => {
@@ -445,7 +484,6 @@
     return { data: { groups: groups } };
   }
 
-  // 開始開獎
   async function draw() {
     const btn = document.getElementById('drawBtn');
     btn.disabled = true;
@@ -455,7 +493,6 @@
     const userCount = parseInt(document.getElementById('countSelect').value);
     const config = modeConfigs[currentMode];
 
-    // 動態組成請求網址
     const apiUrl = config.apiTemplate(userCount);
     let groupsData = [];
 
@@ -470,21 +507,18 @@
       groupsData = mock.data.groups;
     }
 
-    // 重新校正行數
     initEmptyRows();
 
-    // 逐行、逐球跑酷炫的滾動特效
     for (let gIdx = 0; gIdx < groupsData.length; gIdx++) {
       const rowElement = container.children[gIdx];
       const ballElements = rowElement.querySelectorAll('.ball'); 
       
       const mainNums = groupsData[gIdx].numbers;
-      // 539 沒有特別號，這邊會自動為空
       const specNum = groupsData[gIdx].special; 
       const allNums = specNum !== undefined && specNum !== null ? [...mainNums, specNum] : mainNums;
 
       for (let bIdx = 0; bIdx < allNums.length; bIdx++) {
-        await new Promise(r => setTimeout(r, 60)); // 球與球之間的極短開球間隔
+        await new Promise(r => setTimeout(r, 60)); 
         const ballEl = ballElements[bIdx];
         const finalNum = allNums[bIdx];
         const isSpecial = config.hasSpecial && (bIdx === config.mainPick);
@@ -492,7 +526,6 @@
         let spins = 0;
         await new Promise(resolve => {
           const interval = setInterval(() => {
-            // 滾動時只會跑該模式合法的號碼最大值 (49或39)
             ballEl.textContent = String(Math.floor(Math.random() * config.gridTotal) + 1).padStart(2, '0');
             spins++;
             if (spins >= 5) {
@@ -500,7 +533,6 @@
               ballEl.textContent = String(finalNum).padStart(2, '0');
               ballEl.className = `ball ${isSpecial ? 'red' : 'gold'} popping`;
               
-              // 點亮下方號碼盤上對應的號碼球
               const gPanel = document.getElementById('g' + finalNum);
               if (gPanel) gPanel.className = `grid-num ${isSpecial ? 'picked-red' : 'picked-gold'}`;
               
