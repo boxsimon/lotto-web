@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Lotto — 幸運多組選號系統</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Noto+Sans+TC:wght@400;700;900&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #080e1f;
+    --surface:  #0f1c3a;
+    --gold:     #f5c842;
+    --gold-dim: #b8901e;
+    --red:      #d92b3a;
+    --red-glow: rgba(217,43,58,0.45);
+    --white:    #ffffff;
+    --silver:   #a8b4cc;
+    --ball-shadow: 0 6px 16px rgba(0,0,0,0.5);
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Noto Sans TC', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
+    background-image:
+      radial-gradient(ellipse 80% 40% at 50% 0%, rgba(245,200,66,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 30% at 50% 100%, rgba(15,28,58,0.9) 0%, transparent 80%);
+  }
+
+  /* ── Header ── */
+  header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .badge {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--bg);
+    font-family: 'Oswald', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    padding: 4px 14px;
+    border-radius: 2px;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+  h1 {
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(42px, 8vw, 68px);
+    letter-spacing: -1px;
+    line-height: 1;
+    background: linear-gradient(135deg, #f5c842 0%, #ffe98a 50%, #c8930a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: none;
+    margin-bottom: 10px;
+  }
+  .subtitle {
+    color: var(--silver);
+    font-size: 14px;
+    letter-spacing: 1px;
+  }
+
+  /* ── Mode Tabs ── */
+  .tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 6px;
+    border-radius: 30px;
+    border: 1px solid rgba(255,255,255,0.08);
+    width: 100%;
+    max-width: 680px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    color: var(--silver);
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 20px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn.active {
+    background: var(--gold);
+    color: #1a0e00;
+    box-shadow: 0 4px 12px rgba(245,200,66,0.2);
+  }
+
+  /* ── Ticket card ── */
+  .ticket {
+    background: var(--surface);
+    border: 1px solid rgba(245,200,66,0.18);
+    border-radius: 20px;
+    padding: 32px;
+    width: 100%;
+    max-width: 680px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04);
+    position: relative;
+    overflow: hidden;
+  }
+  .ticket::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.7;
+  }
+
+  /* ── 控制面板 (組數選擇) ── */
+  .control-panel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 12px 18px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .control-panel label {
+    font-size: 14px;
+    color: var(--silver);
+    font-weight: 700;
+  }
+  .control-panel select {
+    background: #080e1f;
+    color: var(--gold);
+    border: 1px solid rgba(245,200,66,0.3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 16px;
+    cursor: pointer;
+    outline: none;
+  }
+  .control-panel select:focus {
+    border-color: var(--gold);
+  }
+
+  .section-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--silver);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(168,180,204,0.2);
+  }
+
+  /* ── Container for Dynamic Groups ── */
+  .groups-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 28px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .groups-container::-webkit-scrollbar { width: 6px; }
+  .groups-container::-webkit-scrollbar-thumb { background: rgba(245,200,66,0.2); border-radius: 3px; }
+
+  .group-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+  }
+
+  .group-tag {
+    font-family: 'Oswald', sans-serif;
+    font-size: 12px;
+    color: var(--gold);
+    background: rgba(245,200,66,0.1);
+    padding: 4px 8px;
+    border-radius: 4px;
+    min-width: 55px;
+    text-align: center;
+  }
+
+  .ball {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Oswald', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: transform 0.2s;
+    position: relative;
+  }
+
+  .ball.gold {
+    background: radial-gradient(circle at 35% 30%, #ffe98a, #f5c842 50%, #a0720a);
+    color: #3a2000;
+    box-shadow: var(--ball-shadow);
+  }
+  .ball.red {
+    background: radial-gradient(circle at 35% 30%, #ff7a85, #d92b3a 50%, #7a0e18);
+    color: #fff;
+    box-shadow: var(--ball-shadow), 0 0 12px var(--red-glow);
+  }
+  .ball.empty {
+    background: rgba(255,255,255,0.05);
+    border: 2px dashed rgba(168,180,204,0.25);
+    color: rgba(168,180,204,0.3);
+    font-size: 15px;
+  }
+  .ball.popping {
+    animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes pop {
+    0%   { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .divider {
+    width: 2px;
+    height: 32px;
+    background: rgba(217,43,58,0.4);
+    margin: 0 4px;
+  }
+
+  /* ── Number grid ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+  .grid-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Oswald', sans-serif;
+    font-size: 13px;
+    background: rgba(255,255,255,0.05);
+    color: var(--silver);
+    border: 1px solid rgba(255,255,255,0.06);
+    margin: 0 auto;
+  }
+  .grid-num.picked-gold {
+    background: radial-gradient(circle at 35% 30%, #ffe98a, #f5c842 50%, #a0720a);
+    color: #3a2000;
+    box-shadow: 0 0 10px rgba(245,200,66,0.4);
+  }
+  .grid-num.picked-red {
+    background: radial-gradient(circle at 35% 30%, #ff7a85, #d92b3a 50%, #7a0e18);
+    color: #fff;
+    box-shadow: 0 0 10px var(--red-glow);
+  }
+
+  /* ── Buttons ── */
+  .actions { display: flex; gap: 12px; }
+  .btn-primary {
+    flex: 1;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #f5c842, #e0a800);
+    color: #1a0e00;
+    font-weight: 900;
+    font-size: 16px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 20px rgba(245,200,66,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,200,66,0.5); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-secondary {
+    padding: 16px 20px;
+    background: transparent;
+    color: var(--silver);
+    font-weight: 700;
+    border: 1px solid rgba(168,180,204,0.3);
+    border-radius: 12px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="badge">台灣彩券自動選號機</div>
+  <h1 id="mainTitle">多組選號</h1>
+  <p class="subtitle" id="subTitle">呼叫 /superlotto 獲取多組幸運號碼</p>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" id="tab-superlotto" onclick="switchMode('superlotto')">大樂透模式 (Superlotto)</button>
+  <button class="tab-btn" id="tab-539" onclick="switchMode('539')">今彩 539 模式 (Daily 539)</button>
+</div>
+
+<div class="ticket">
+  <div class="control-panel" id="controlPanel">
+    <label for="countSelect">選擇產生組數：</label>
+    <select id="countSelect" onchange="reset()">
+      <option value="1">1 組</option>
+      <option value="2">2 組</option>
+      <option value="3" selected>3 組</option>
+      <option value="5">5 組</option>
+      <option value="10">10 組</option>
+    </select>
+  </div>
+
+  <div class="section-label" id="panelLabel">本次產生號碼</div>
+  
+  <div class="groups-container" id="groupsContainer"></div>
+
+  <div class="section-label" id="gridLabel">號碼分佈盤 (所有開出號碼總覽)</div>
+  <div class="grid" id="numGrid"></div>
+
+  <div class="actions">
+    <button class="btn-primary" id="drawBtn" onclick="draw()">✦ 開始開獎</button>
+    <button class="btn-secondary" onclick="reset()">清除</button>
+  </div>
+</div>
+
+<script>
+  // 兩種模式各自的球數規格設定
+  const modeConfigs = {
+    superlotto: {
+      title: '威力彩多組選號',
+      subtitle: '呼叫 /superlotto 獲取多組幸運號碼',
+      gridTotal: 49,     // 面板總球數
+      mainPick: 6,       // 主號開幾個
+      hasSpecial: true,  // 有無特別號
+      apiTemplate: (count) => `https://ai-lotto-4lk9.onrender.com`
+    },
+    '539': {
+      title: '今彩 539 多組選號',
+      subtitle: '呼叫 /539/super 獲取多組 539 幸運號碼',
+      gridTotal: 39,     // 539 只到 39 號
+      mainPick: 5,       // 主號開 5 個
+      hasSpecial: false, // 539 無特別號
+      apiTemplate: (count) => `https://ai-lotto-4lk9.onrender.com`
+    }
+  };
+
+  let currentMode = 'superlotto';
+
+  // 初始化號碼盤面
+  function buildGrid() {
+    const grid = document.getElementById('numGrid');
+    grid.innerHTML = '';
+    const config = modeConfigs[currentMode];
+    
+    document.getElementById('gridLabel').textContent = `號碼分佈盤 (01 – ${config.gridTotal})`;
+
+    for (let i = 1; i <= config.gridTotal; i++) {
+      const el = document.createElement('div');
+      el.className = 'grid-num';
+      el.id = 'g' + i;
+      el.textContent = String(i).padStart(2, '0');
+      grid.appendChild(el);
+    }
+  }
+
+  // 切換模式
+  function switchMode(mode) {
+    if (currentMode === mode) return;
+    currentMode = mode;
+    
+    document.getElementById('tab-superlotto').className = mode === 'superlotto' ? 'tab-btn active' : 'tab-btn';
+    document.getElementById('tab-539').className = mode === '539' ? 'tab-btn active' : 'tab-btn';
+    
+    const config = modeConfigs[mode];
+    document.getElementById('mainTitle').textContent = config.title;
+    document.getElementById('subTitle').textContent = config.subtitle;
+    
+    reset();
+  }
+
+  // 根據選擇的組數，動態長出「問號」空球框架
+  function initEmptyRows() {
+    const container = document.getElementById('groupsContainer');
+    container.innerHTML = '';
+    
+    const count = parseInt(document.getElementById('countSelect').value);
+    const config = modeConfigs[currentMode];
+
+    for(let g = 0; g < count; g++) {
+      const row = document.createElement('div');
+      row.className = 'group-row';
+      row.innerHTML = `<div class="group-tag">第 ${g+1} 注</div>`;
+      
+      // 產生主號空框架
+      for(let i = 0; i < config.mainPick; i++) {
+        row.innerHTML += `<div class="ball empty">?</div>`;
+      }
+      
+      // 如果有特別號，加上分隔線與特別號框
+      if (config.hasSpecial) {
+        row.innerHTML += `<div class="divider"></div><div class="ball empty">?</div>`;
+      }
+      
+      container.appendChild(row);
+    }
+  }
+
+  // 前端備用 Mock 機制 (避免後端沒開時網頁掛掉)
+  function getMockData(mode, count) {
+    const config = modeConfigs[mode];
+    const genGroup = () => {
+      let pool = Array.from({length: config.gridTotal}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
+      let main = pool.slice(0, config.mainPick).sort((a,b) => a - b);
+      let special = config.hasSpecial ? Math.floor(Math.random() * config.gridTotal) + 1 : null;
+      return { numbers: main, special: special };
+    };
+    let groups = [];
+    for(let i = 0; i < count; i++) groups.push(genGroup());
+    return { data: { groups: groups } };
+  }
+
+  // 開始開獎
+  async function draw() {
+    const btn = document.getElementById('drawBtn');
+    btn.disabled = true;
+    clearGrid();
+
+    const container = document.getElementById('groupsContainer');
+    const userCount = parseInt(document.getElementById('countSelect').value);
+    const config = modeConfigs[currentMode];
+
+    // 動態組成請求網址
+    const apiUrl = config.apiTemplate(userCount);
+    let groupsData = [];
+
+    try {
+      const response = await fetch(apiUrl);
+      if (!response.ok) throw new Error('API 回應錯誤');
+      const resJson = await response.json();
+      groupsData = resJson.data.groups; 
+    } catch (error) {
+      console.warn('⚠️ 呼叫 API 失敗，啟用前端 Mock 模擬。', error);
+      const mock = getMockData(currentMode, userCount);
+      groupsData = mock.data.groups;
+    }
+
+    // 重新校正行數
+    initEmptyRows();
+
+    // 逐行、逐球跑酷炫的滾動特效
+    for (let gIdx = 0; gIdx < groupsData.length; gIdx++) {
+      const rowElement = container.children[gIdx];
+      const ballElements = rowElement.querySelectorAll('.ball'); 
+      
+      const mainNums = groupsData[gIdx].numbers;
+      // 539 沒有特別號，這邊會自動為空
+      const specNum = groupsData[gIdx].special; 
+      const allNums = specNum !== undefined && specNum !== null ? [...mainNums, specNum] : mainNums;
+
+      for (let bIdx = 0; bIdx < allNums.length; bIdx++) {
+        await new Promise(r => setTimeout(r, 60)); // 球與球之間的極短開球間隔
+        const ballEl = ballElements[bIdx];
+        const finalNum = allNums[bIdx];
+        const isSpecial = config.hasSpecial && (bIdx === config.mainPick);
+
+        let spins = 0;
+        await new Promise(resolve => {
+          const interval = setInterval(() => {
+            // 滾動時只會跑該模式合法的號碼最大值 (49或39)
+            ballEl.textContent = String(Math.floor(Math.random() * config.gridTotal) + 1).padStart(2, '0');
+            spins++;
+            if (spins >= 5) {
+              clearInterval(interval);
+              ballEl.textContent = String(finalNum).padStart(2, '0');
+              ballEl.className = `ball ${isSpecial ? 'red' : 'gold'} popping`;
+              
+              // 點亮下方號碼盤上對應的號碼球
+              const gPanel = document.getElementById('g' + finalNum);
+              if (gPanel) gPanel.className = `grid-num ${isSpecial ? 'picked-red' : 'picked-gold'}`;
+              
+              resolve();
+            }
+          }, 40);
+        });
+      }
+    }
+
+    btn.disabled = false;
+  }
+
+  function clearGrid() {
+    const config = modeConfigs[currentMode];
+    for (let i = 1; i <= config.gridTotal; i++) {
+      const g = document.getElementById('g' + i);
+      if (g) g.className = 'grid-num';
+    }
+  }
+
+  function reset() {
+    buildGrid();
+    initEmptyRows();
+  }
+
+  window.onload = function() {
+    reset();
+  };
+</script>
+
+</body>
+</html>
