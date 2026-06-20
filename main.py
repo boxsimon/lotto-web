@@ -174,7 +174,54 @@ def single():
 
     })
 
+# =========================
+# 產生真正威力彩號碼 (第一區1~38選6，第二區1~8選1)
+# =========================
 
+def generate_power_lotto_numbers():
+    """產生威力彩號碼：第一區 1~38 選 6 (排序)，第二區 1~8 選 1"""
+    zone1 = sorted(
+        random.sample(range(1, 39), 6)
+    )
+    zone2 = random.randint(1, 8)
+    return {
+        "numbers": zone1,      # 第一區六個號碼
+        "special": zone2       # 第二區一個號碼
+    }
+
+
+# =========================
+# 威力彩產生 API
+# =========================
+
+@app.get("/api/v1/lottery/powerlotto")
+def single_power_lotto():
+    """單組威力彩 API"""
+    return api_response({
+        "lottery": "power-lotto-638",
+        "draw_no": f"PL{datetime.now().strftime('%Y%m%d%H%M%S')}",
+        "draw_date": datetime.now().strftime("%Y-%m-%d"),
+        "group": generate_power_lotto_numbers()
+    })
+
+
+@app.get("/api/v1/lottery/powerlotto/super")
+def super_power_lotto(count: int = 5):
+    """多組威力彩 API (支援自訂組數 ?count=X)"""
+    groups = []
+    for i in range(count):
+        groups.append({
+            "id": i + 1,
+            **generate_power_lotto_numbers()
+        })
+    return api_response({
+        "lottery": "power-lotto-638",
+        "draw_no": f"PL{datetime.now().strftime('%Y%m%d%H%M%S')}",
+        "draw_date": datetime.now().strftime("%Y-%m-%d"),
+        "groups": groups,
+        "total": len(groups)
+    })
+    
 # =========================
 # 健康檢查
 # =========================

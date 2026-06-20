@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>橡子森林 — 幸運搖號機</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Noto+Sans+TC:wght@500;700;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Noto+Sans+TC:wght=500;700;900&display=swap');
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -33,7 +33,6 @@
     flex-direction: column;
     align-items: center;
     padding: 40px 20px 60px;
-    /* 仿草地與晴空漸層，並帶有童話感 */
     background-image: 
       linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 40%, #f0fdf4 70%, #dcfce7 100%);
     position: relative;
@@ -71,7 +70,7 @@
     box-shadow: 0 4px 10px rgba(76, 158, 69, 0.2);
   }
   h1 {
-    font-size: clamp(32px, 6vw, 48px);
+    font-size: clamp(32px, 6vw, 42px);
     font-weight: 900;
     color: var(--forest-dark);
     text-shadow: 2px 2px 0px var(--wood-light), 4px 4px 0px rgba(0,0,0,0.05);
@@ -91,23 +90,22 @@
     display: inline-block;
   }
 
-  /* ── Mode Tabs (遊戲選單切換風) ── */
+  /* ── Mode Tabs (寬度同步放大至 960px) ── */
   .tabs {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     margin-bottom: 24px;
-    background: rgba(109, 76, 6 brown, 0.05);
     background-color: rgba(255, 255, 255, 0.6);
     padding: 8px;
     border-radius: 40px;
     border: 3px solid var(--wood-dark);
     width: 100%;
-    max-width: 680px;
+    max-width: 960px; /* 從 680px 擴展至 960px */
     box-shadow: 0 6px 0px var(--wood-dark);
   }
   .tab-btn {
     flex: 1;
-    padding: 12px 16px;
+    padding: 14px 8px;
     border: none;
     background: transparent;
     color: #8d6e63;
@@ -121,24 +119,24 @@
   .tab-btn.active {
     background: var(--forest-leaf);
     color: white;
-    transform: scale(1.05);
+    transform: scale(1.02);
     border: 2px solid var(--forest-dark);
     box-shadow: 0 4px 12px rgba(76,158,69,0.3);
   }
 
-  /* ── Ticket card (橡木手繪佈告欄) ── */
+  /* ── Ticket card (主卡片同步擴展至 960px) ── */
   .ticket {
     background: var(--wood-light);
     border: 4px solid var(--wood-dark);
     border-radius: 28px;
-    padding: 28px;
+    padding: 32px;
     width: 100%;
-    max-width: 680px;
+    max-width: 960px; /* 從 680px 擴展至 960px */
     box-shadow: 0 16px 0px rgba(109,76,65,0.2), var(--card-shadow);
     position: relative;
   }
 
-  /* ── 控制面板 (RPG遊戲選項風格) ── */
+  /* ── 控制面板 ── */
   .control-panel {
     display: flex;
     align-items: center;
@@ -150,7 +148,7 @@
     border: 2px dashed rgba(109, 76, 65, 0.2);
   }
   .control-panel label {
-    font-size: 15px;
+    font-size: 16px;
     color: var(--wood-dark);
     font-weight: 700;
   }
@@ -168,7 +166,7 @@
   }
 
   .section-label {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 900;
     color: #8d6e63;
     margin-bottom: 16px;
@@ -201,24 +199,24 @@
     gap: 12px;
     flex-wrap: wrap;
     background: white;
-    padding: 14px 18px;
+    padding: 16px 20px;
     border-radius: 20px;
     border: 2px solid rgba(109, 76, 65, 0.12);
     box-shadow: 0 4px 0px rgba(109, 76, 65, 0.05);
   }
 
   .group-tag {
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 900;
     color: white;
     background: var(--totoro-grey);
-    padding: 6px 12px;
+    padding: 6px 14px;
     border-radius: 10px;
-    min-width: 65px;
+    min-width: 75px;
     text-align: center;
   }
 
-  /* ── 療癒感圓潤號碼球 ── */
+  /* ── 號碼球大小微調 ── */
   .ball {
     width: 46px;
     height: 46px;
@@ -227,26 +225,23 @@
     align-items: center;
     justify-content: center;
     font-family: 'Fredoka One', 'Noto Sans TC', sans-serif;
-    font-size: 18px;
+    font-size: 19px;
     font-weight: 700;
     flex-shrink: 0;
     position: relative;
     border: 2px solid var(--wood-dark);
   }
 
-  /* 金黃色球 - 溫暖色調像發光的果實 */
   .ball.gold {
     background: radial-gradient(circle at 35% 30%, #fffde7, #ffca28 60%, #ffa000);
     color: var(--wood-dark);
     box-shadow: var(--ball-shadow);
   }
-  /* 紅色球 - 特別號改為成熟的紅漿果 */
   .ball.red {
     background: radial-gradient(circle at 35% 30%, #ffeff0, #ef5350 60%, #b71c1c);
     color: white;
     box-shadow: var(--ball-shadow);
   }
-  /* 空白球 - 手繪虛線小松果造型感 */
   .ball.empty {
     background: rgba(109, 76, 65, 0.03);
     border: 2px dashed rgba(109, 76, 65, 0.25);
@@ -266,25 +261,26 @@
     height: 28px;
     background: rgba(109, 76, 65, 0.2);
     border-radius: 2px;
-    margin: 0 2px;
+    margin: 0 4px;
   }
 
-  /* ── 號碼分佈格子（落葉泥土感盤面） ── */
+  /* ── 號碼分佈格子 (更改為每行 10 個球，更寬敞整齊) ── */
   .grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(10, 1fr); /* 從原本的 7 改為 10 */
+    gap: 10px;
     margin-bottom: 32px;
+    padding: 0 10px;
   }
   .grid-num {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px; /* 溫和的圓角方形 */
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: 'Fredoka One', sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
     background: white;
     color: #bcaaa4;
@@ -307,7 +303,7 @@
     box-shadow: 0 4px 8px rgba(229,57,53,0.3);
   }
 
-  /* ── 遊戲動作按鈕 (木牌壓印風) ── */
+  /* ── 動作按鈕 ── */
   .actions { display: flex; gap: 14px; }
   .btn-primary {
     flex: 1;
@@ -340,7 +336,7 @@
     transform: none !important;
   }
   .btn-secondary {
-    padding: 16px 22px;
+    padding: 16px 26px;
     background: #e0e0e0;
     color: var(--wood-dark);
     font-weight: 700;
@@ -360,24 +356,26 @@
 
 <header>
   <div class="badge">🍃 森林廣播 API 連線版</div>
-  <h1 id="mainTitle">🌰 威力彩多組選號</h1>
-  <p class="subtitle" id="subTitle">呼叫 /superlotto 獲取多組幸運號碼</p>
+  <h1 id="mainTitle">🌰 大樂透幸運選號</h1>
+  <p class="subtitle" id="subTitle"></p>
 </header>
 
 <div class="tabs">
-  <button class="tab-btn active" id="tab-superlotto" onclick="switchMode('superlotto')">🪵 威力彩模式</button>
-  <button class="tab-btn" id="tab-539" onclick="switchMode('539')">🐾 今彩 539 模式</button>
+  <button class="tab-btn active" id="tab-superlotto" onclick="switchMode('superlotto')">🪵 大樂透</button>
+  <button class="tab-btn" id="tab-539" onclick="switchMode('539')">🐾 今彩 539</button>
+  <button class="tab-btn" id="tab-powerlotto" onclick="switchMode('powerlotto')">✨ 威力彩</button>
 </div>
 
 <div class="ticket">
   <div class="control-panel" id="controlPanel">
     <label for="countSelect">🪵 挑選你要的注數：</label>
     <select id="countSelect" onchange="reset()">
-      <option value="1">1 注袋</option>
-      <option value="2">2 注袋</option>
-      <option value="3" selected>3 注袋</option>
-      <option value="5">5 注袋</option>
-      <option value="10">10 注袋</option>
+      <option value="1" selected>1 注</option>
+      <option value="2">2 注</option>
+      <option value="3">3 注</option>
+	  <option value="4">4 注</option>
+      <option value="5">5 注</option>
+      <option value="10">10 注</option>
     </select>
   </div>
 
@@ -395,23 +393,34 @@
 </div>
 
 <script>
-  // 保持你原本完美的 API 核心連動邏輯不變
+  // 核心模式配置：設定專屬 Render API 連線
   const modeConfigs = {
     superlotto: {
-      title: '🌰 威力彩幸運選號',
-      subtitle: '呼叫 /superlotto 獲取多組幸運號碼',
+      title: '🌰 大樂透幸運選號',
+      subtitle: '',
       gridTotal: 49,
       mainPick: 6,
       hasSpecial: true,
+      maxSpecialNum: 49,
       apiTemplate: (count) => `https://ai-lotto-api.onrender.com/api/v1/lottery/superlotto?count=${count}`
     },
     '539': {
       title: '🐾 今彩 539 森林選號',
-      subtitle: '呼叫 /539/super 獲取多組 539 幸運號碼',
+      subtitle: '',
       gridTotal: 39,
       mainPick: 5,
       hasSpecial: false,
+      maxSpecialNum: 0,
       apiTemplate: (count) => `https://ai-lotto-api.onrender.com/api/v1/lottery/539/super?count=${count}`
+    },
+    powerlotto: {
+      title: '✨ 威力彩雷霆選號',
+      subtitle: '',
+      gridTotal: 38,       // 第一區 01 ~ 38
+      mainPick: 6,         // 第一區選 6 個
+      hasSpecial: true,    // 有第二區特別號
+      maxSpecialNum: 8,    // 第二區 01 ~ 08
+      apiTemplate: (count) => `https://ai-lotto-api.onrender.com/api/v1/lottery/powerlotto/super?count=${count}`
     }
   };
 
@@ -422,7 +431,7 @@
     grid.innerHTML = '';
     const config = modeConfigs[currentMode];
     
-    document.getElementById('gridLabel').textContent = `🍄 號碼落葉盤 (01 – ${config.gridTotal})`;
+    document.getElementById('gridLabel').textContent = `🍄 第一區號碼盤 (01 – ${config.gridTotal})`;
 
     for (let i = 1; i <= config.gridTotal; i++) {
       const el = document.createElement('div');
@@ -439,6 +448,7 @@
     
     document.getElementById('tab-superlotto').className = mode === 'superlotto' ? 'tab-btn active' : 'tab-btn';
     document.getElementById('tab-539').className = mode === '539' ? 'tab-btn active' : 'tab-btn';
+    document.getElementById('tab-powerlotto').className = mode === 'powerlotto' ? 'tab-btn active' : 'tab-btn';
     
     const config = modeConfigs[mode];
     document.getElementById('mainTitle').textContent = config.title;
@@ -476,7 +486,7 @@
     const genGroup = () => {
       let pool = Array.from({length: config.gridTotal}, (_, i) => i + 1).sort(() => Math.random() - 0.5);
       let main = pool.slice(0, config.mainPick).sort((a,b) => a - b);
-      let special = config.hasSpecial ? Math.floor(Math.random() * config.gridTotal) + 1 : null;
+      let special = config.hasSpecial ? Math.floor(Math.random() * config.maxSpecialNum) + 1 : null;
       return { numbers: main, special: special };
     };
     let groups = [];
@@ -526,15 +536,19 @@
         let spins = 0;
         await new Promise(resolve => {
           const interval = setInterval(() => {
-            ballEl.textContent = String(Math.floor(Math.random() * config.gridTotal) + 1).padStart(2, '0');
+            const maxRoll = isSpecial ? config.maxSpecialNum : config.gridTotal;
+            ballEl.textContent = String(Math.floor(Math.random() * maxRoll) + 1).padStart(2, '0');
             spins++;
+            
             if (spins >= 5) {
               clearInterval(interval);
               ballEl.textContent = String(finalNum).padStart(2, '0');
               ballEl.className = `ball ${isSpecial ? 'red' : 'gold'} popping`;
               
-              const gPanel = document.getElementById('g' + finalNum);
-              if (gPanel) gPanel.className = `grid-num ${isSpecial ? 'picked-red' : 'picked-gold'}`;
+              if (!isSpecial || currentMode !== 'powerlotto') {
+                const gPanel = document.getElementById('g' + finalNum);
+                if (gPanel) gPanel.className = `grid-num ${isSpecial ? 'picked-red' : 'picked-gold'}`;
+              }
               
               resolve();
             }
