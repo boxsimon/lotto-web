@@ -70,8 +70,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
   }
   .dot {
     width: 12px;
@@ -85,6 +86,26 @@
     0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
     70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); }
     100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+  }
+
+  /* ⏳ 倒數計時器外觀樣式 */
+  .countdown-badge {
+    background: rgba(109, 76, 65, 0.1);
+    padding: 6px 14px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--wood-dark);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(109, 76, 65, 0.15);
+  }
+  .countdown-time {
+    color: var(--berry-red);
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.5px;
   }
 
   .bingo-card {
@@ -142,6 +163,7 @@
     border-radius: 16px;
     cursor: pointer;
     box-shadow: 0 6px 0px var(--forest-dark);
+    transition: transform 0.1s;
   }
   .refresh-btn:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--forest-dark); }
 </style>
@@ -156,6 +178,10 @@
     <div class="status-header">
       <span class="dot" id="statusDot"></span>
       <span id="statusText" style="font-weight:700;">連線檢查中...</span>
+      
+      <span class="countdown-badge">
+        ⏱️ 台彩開獎倒數：<span class="countdown-time" id="timerDisplay">--:--</span>
+      </span>
     </div>
   </header>
 
@@ -163,10 +189,67 @@
     <div style="text-align:center; color:#757575;">正在向後端 Python 伺服器探測最新開獎結果...</div>
   </div>
 
-  <button class="refresh-btn" onclick="checkApiHealth()">🔄 手動重新整理數據</button>
+  <button class="refresh-btn" onclick="manualRefresh()">🔄 手動重新整理數據</button>
 </div>
 
 <script>
+  let timerInterval = null;
+
+  // 🕒 核心邏輯：動態計算距離台彩下一次官方開獎（每5分鐘一整除期）還剩多少秒
+  function getSecondsToNextDraw() {
+    const now = new Date();
+    const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
+    
+    // 計算當前這個 5 分鐘區段已經過去了多少秒
+    const secondsPassedInPeriod = (minutes % 5) * 60 + seconds;
+    
+    // 距離下一個 5 分鐘整除時間點（例如 05分00秒、10分00秒）還差多少秒
+    let timeLeft = (5 * 60) - secondsPassedInPeriod;
+    
+    // 【貼心緩衝 +3 秒】：因為台彩官方開出了之後，Python 爬蟲後端需要 2~3 秒的處理與網路延遲，
+    // 這裡加上 3 秒，讓前端在 00:03 秒時才發送 fetch，這樣能百分之百抓到最新的號碼，不會拿到上一期的舊資料！
+    return timeLeft + 3; 
+  }
+
+  // 啟動跟官方完全同步的秒級校準計時器
+  function startTimer() {
+    clearInterval(timerInterval); // 防呆清除舊計時器
+
+    function tick() {
+      let timeLeft = getSecondsToNextDraw();
+      
+      // 如果加了 3 秒緩衝導致算出來的秒數大於 5 分鐘 (300秒)，代表剛剛好跨過開獎點，校正回倒數
+      if (timeLeft > 300) {
+        timeLeft = timeLeft - 300;
+      }
+
+      const mins = Math.floor(timeLeft / 60);
+      const secs = timeLeft % 60;
+      
+      // 將倒數即時渲染到畫面上
+      document.getElementById('timerDisplay').textContent = 
+        `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+      // 🎯 當時間完美歸零（也就是台彩官方開獎 + 3秒缓衝）
+      if (mins === 0 && secs === 0) {
+        setTimeout(() => {
+          checkApiHealth(); // 背景觸發更新，不干擾使用者
+        }, 500);
+      }
+    }
+
+    tick(); // 剛進網頁時先立刻跑一次
+    timerInterval = setInterval(tick, 1000); // 隨後每秒都執行 tick() 校準
+  }
+
+  // 當使用者手動點擊「重新整理」
+  function manualRefresh() {
+    checkApiHealth();
+    // 這裡不需要重設時間，因為它是讀取電腦內部的系統時鐘，它會一直跟官方保持完美的絕對同步！
+  }
+
+  // 呼叫 FastAPI 獲取最新開獎紀錄
   async function checkApiHealth() {
     const dot = document.getElementById('statusDot');
     const statusText = document.getElementById('statusText');
@@ -212,7 +295,10 @@
     }
   }
 
-  window.onload = checkApiHealth;
+  window.onload = function() {
+    checkApiHealth(); // 開啟網頁先更新一次畫面
+    startTimer();     // 啟動與台彩官方連動的計時器
+  };
 </script>
 
 </body>
