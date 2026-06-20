@@ -10,15 +10,14 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    /* 吉卜力森林系遊戲配色 */
-    --bg-sky:      #e0f2fe; /* 晴空藍 */
-    --forest-dark: #2d5a27; /* 茂密森林綠 */
-    --forest-leaf: #4c9e45; /* 嫩葉綠 */
-    --wood-light:  #fbf4e9; /* 溫馨牛皮紙白 */
-    --wood-dark:   #6d4c41; /* 橡木棕 */
-    --acorn-gold:  #ffb300; /* 橡子金黃 */
-    --totoro-grey: #78909c; /* 龍貓毛色灰 */
-    --berry-red:   #e53935; /* 森林覆盆莓紅 */
+    --bg-sky:      #e0f2fe; 
+    --forest-dark: #2d5a27; 
+    --forest-leaf: #4c9e45; 
+    --wood-light:  #fbf4e9; 
+    --wood-dark:   #6d4c41; 
+    --acorn-gold:  #ffb300; 
+    --totoro-grey: #78909c; 
+    --berry-red:   #e53935; 
     
     --card-shadow: 0 12px 28px rgba(109, 76, 65, 0.15), 0 4px 8px rgba(0,0,0,0.05);
     --ball-shadow: 0 6px 12px rgba(109, 76, 65, 0.3);
@@ -33,24 +32,11 @@
     flex-direction: column;
     align-items: center;
     padding: 40px 20px 60px;
-    background-image: 
-      linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 40%, #f0fdf4 70%, #dcfce7 100%);
+    background-image: linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 40%, #f0fdf4 70%, #dcfce7 100%);
     position: relative;
     overflow-x: hidden;
   }
 
-  /* 仿手繪小草裝飾 */
-  body::after {
-    content: "🌱 🌿 🍄 🌱";
-    position: fixed;
-    bottom: 10px;
-    font-size: 24px;
-    opacity: 0.7;
-    letter-spacing: 20px;
-    pointer-events: none;
-  }
-
-  /* ── Header ── */
   header {
     text-align: center;
     margin-bottom: 24px;
@@ -90,7 +76,6 @@
     display: inline-block;
   }
 
-  /* ── Mode Tabs (寬度同步放大至 960px) ── */
   .tabs {
     display: flex;
     gap: 8px;
@@ -100,7 +85,7 @@
     border-radius: 40px;
     border: 3px solid var(--wood-dark);
     width: 100%;
-    max-width: 960px; /* 從 680px 擴展至 960px */
+    max-width: 960px;
     box-shadow: 0 6px 0px var(--wood-dark);
   }
   .tab-btn {
@@ -124,19 +109,18 @@
     box-shadow: 0 4px 12px rgba(76,158,69,0.3);
   }
 
-  /* ── Ticket card (主卡片同步擴展至 960px) ── */
   .ticket {
     background: var(--wood-light);
     border: 4px solid var(--wood-dark);
     border-radius: 28px;
     padding: 32px;
     width: 100%;
-    max-width: 960px; /* 從 680px 擴展至 960px */
+    max-width: 960px;
     box-shadow: 0 16px 0px rgba(109,76,65,0.2), var(--card-shadow);
     position: relative;
+    margin-bottom: 24px;
   }
 
-  /* ── 控制面板 ── */
   .control-panel {
     display: flex;
     align-items: center;
@@ -173,7 +157,6 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    text-transform: uppercase;
   }
   .section-label::after {
     content: '';
@@ -182,7 +165,6 @@
     background: rgba(109, 76, 65, 0.15);
   }
 
-  /* ── 號碼球容器 ── */
   .groups-container {
     display: flex;
     flex-direction: column;
@@ -216,7 +198,6 @@
     text-align: center;
   }
 
-  /* ── 號碼球大小微調 ── */
   .ball {
     width: 46px;
     height: 46px;
@@ -264,10 +245,9 @@
     margin: 0 4px;
   }
 
-  /* ── 號碼分佈格子 (更改為每行 10 個球，更寬敞整齊) ── */
   .grid {
     display: grid;
-    grid-template-columns: repeat(10, 1fr); /* 從原本的 7 改為 10 */
+    grid-template-columns: repeat(10, 1fr);
     gap: 10px;
     margin-bottom: 32px;
     padding: 0 10px;
@@ -303,7 +283,6 @@
     box-shadow: 0 4px 8px rgba(229,57,53,0.3);
   }
 
-  /* ── 動作按鈕 ── */
   .actions { display: flex; gap: 14px; }
   .btn-primary {
     flex: 1;
@@ -319,37 +298,18 @@
     box-shadow: 0 6px 0px var(--forest-dark);
     transition: all 0.1s;
   }
-  .btn-primary:hover {
-    transform: translateY(2px);
-    box-shadow: 0 4px 0px var(--forest-dark);
-  }
-  .btn-primary:active {
-    transform: translateY(6px);
-    box-shadow: 0 0px 0px var(--forest-dark);
-  }
+  .btn-primary:hover { transform: translateY(2px); box-shadow: 0 4px 0px var(--forest-dark); }
+  .btn-primary:active { transform: translateY(6px); box-shadow: 0 0px 0px var(--forest-dark); }
   .btn-primary:disabled {
-    background: #cfd8dc;
-    border-color: #90a4ae;
-    color: #78909c;
-    box-shadow: 0 4px 0px #90a4ae;
-    cursor: not-allowed;
-    transform: none !important;
+    background: #cfd8dc; border-color: #90a4ae; color: #78909c;
+    box-shadow: 0 4px 0px #90a4ae; cursor: not-allowed; transform: none !important;
   }
   .btn-secondary {
-    padding: 16px 26px;
-    background: #e0e0e0;
-    color: var(--wood-dark);
-    font-weight: 700;
-    font-size: 15px;
-    border: 3px solid #9e9e9e;
-    border-radius: 16px;
-    box-shadow: 0 4px 0px #9e9e9e;
-    cursor: pointer;
+    padding: 16px 26px; background: #e0e0e0; color: var(--wood-dark);
+    font-weight: 700; font-size: 15px; border: 3px solid #9e9e9e;
+    border-radius: 16px; box-shadow: 0 4px 0px #9e9e9e; cursor: pointer;
   }
-  .btn-secondary:active {
-    transform: translateY(4px);
-    box-shadow: 0 0px 0px #9e9e9e;
-  }
+  .btn-secondary:active { transform: translateY(4px); box-shadow: 0 0px 0px #9e9e9e; }
 </style>
 </head>
 <body>
@@ -357,30 +317,30 @@
 <header>
   <div class="badge">🍃 森林廣播 API 連線版</div>
   <h1 id="mainTitle">🌰 大樂透幸運選號</h1>
-  <p class="subtitle" id="subTitle"></p>
+  <p class="subtitle" id="subTitle">呼叫 /superlotto 獲取多組大樂透號碼</p>
 </header>
 
 <div class="tabs">
   <button class="tab-btn active" id="tab-superlotto" onclick="switchMode('superlotto')">🪵 大樂透</button>
   <button class="tab-btn" id="tab-539" onclick="switchMode('539')">🐾 今彩 539</button>
   <button class="tab-btn" id="tab-powerlotto" onclick="switchMode('powerlotto')">✨ 威力彩</button>
+  
+  <a href="./bingo.html" class="tab-btn" style="text-decoration: none; text-align: center; background: var(--acorn-gold); color: var(--wood-dark); border: 2px solid var(--wood-dark); line-height: 1.2;">🍄 BINGO 實況</a>
 </div>
 
 <div class="ticket">
   <div class="control-panel" id="controlPanel">
     <label for="countSelect">🪵 挑選你要的注數：</label>
     <select id="countSelect" onchange="reset()">
-      <option value="1" selected>1 注</option>
-      <option value="2">2 注</option>
-      <option value="3">3 注</option>
-	  <option value="4">4 注</option>
-      <option value="5">5 注</option>
-      <option value="10">10 注</option>
+      <option value="1">1 注袋</option>
+      <option value="2">2 注袋</option>
+      <option value="3" selected>3 注袋</option>
+      <option value="5">5 注袋</option>
+      <option value="10">10 注袋</option>
     </select>
   </div>
 
   <div class="section-label" id="panelLabel">🌰 搖出的橡子果實</div>
-  
   <div class="groups-container" id="groupsContainer"></div>
 
   <div class="section-label" id="gridLabel">🍄 號碼落葉盤</div>
@@ -393,34 +353,33 @@
 </div>
 
 <script>
-  // 核心模式配置：設定專屬 Render API 連線
   const modeConfigs = {
     superlotto: {
       title: '🌰 大樂透幸運選號',
-      subtitle: '',
+      subtitle: '呼叫 /superlotto 獲取多組大樂透號碼',
       gridTotal: 49,
       mainPick: 6,
       hasSpecial: true,
       maxSpecialNum: 49,
-      apiTemplate: (count) => `https://ai-lotto-api.onrender.com/api/v1/lottery/superlotto?count=${count}`
+      apiTemplate: (count) => `http://127.0.0.1:8000/api/v1/lottery/superlotto?count=${count}`
     },
     '539': {
       title: '🐾 今彩 539 森林選號',
-      subtitle: '',
+      subtitle: '呼叫 /539/super 獲取多組 539 幸運號碼',
       gridTotal: 39,
       mainPick: 5,
       hasSpecial: false,
       maxSpecialNum: 0,
-      apiTemplate: (count) => `https://ai-lotto-api.onrender.com/api/v1/lottery/539/super?count=${count}`
+      apiTemplate: (count) => `http://127.0.0.1:8000/api/v1/lottery/539/super?count=${count}`
     },
     powerlotto: {
       title: '✨ 威力彩雷霆選號',
-      subtitle: '',
-      gridTotal: 38,       // 第一區 01 ~ 38
-      mainPick: 6,         // 第一區選 6 個
-      hasSpecial: true,    // 有第二區特別號
-      maxSpecialNum: 8,    // 第二區 01 ~ 08
-      apiTemplate: (count) => `https://ai-lotto-api.onrender.com/api/v1/lottery/powerlotto/super?count=${count}`
+      subtitle: '呼叫 /powerlotto/super 獲取多組威力彩號碼',
+      gridTotal: 38,       
+      mainPick: 6,         
+      hasSpecial: true,    
+      maxSpecialNum: 8,    
+      apiTemplate: (count) => `http://127.0.0.1:8000/api/v1/lottery/powerlotto/super?count=${count}`
     }
   };
 
@@ -454,6 +413,7 @@
     document.getElementById('mainTitle').textContent = config.title;
     document.getElementById('subTitle').textContent = config.subtitle;
     
+    clearGrid();
     reset();
   }
 
@@ -571,6 +531,7 @@
   function reset() {
     buildGrid();
     initEmptyRows();
+    /* ❌ 已將錯誤的 checkApiHealth(); 移除 */
   }
 
   window.onload = function() {

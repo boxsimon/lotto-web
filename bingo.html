@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>橡子森林 — BINGO BINGO 即時開獎實況</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Noto+Sans+TC:wght=500;700;900&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-sky:      #e0f2fe; 
+    --forest-dark: #2d5a27; 
+    --forest-leaf: #4c9e45; 
+    --wood-light:  #fbf4e9; 
+    --wood-dark:   #6d4c41; 
+    --acorn-gold:  #ffb300; 
+    --berry-red:   #e53935; 
+  }
+
+  body {
+    background: var(--bg-sky);
+    color: var(--wood-dark);
+    font-family: 'Noto Sans TC', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    background-image: linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 40%, #f0fdf4 70%, #dcfce7 100%);
+  }
+
+  .container {
+    background: var(--wood-light);
+    border: 4px solid var(--wood-dark);
+    border-radius: 28px;
+    padding: 32px;
+    width: 100%;
+    max-width: 800px;
+    box-shadow: 0 16px 0px rgba(109,76,65,0.2), 0 12px 28px rgba(109, 76, 65, 0.15);
+    text-align: center;
+  }
+
+  header { margin-bottom: 24px; }
+  
+  .back-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: white;
+    color: var(--wood-dark);
+    text-decoration: none;
+    font-weight: 700;
+    border: 2px solid var(--wood-dark);
+    border-radius: 50px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 0 var(--wood-dark);
+    transition: transform 0.1s;
+  }
+  .back-btn:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--wood-dark); }
+
+  h1 {
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--forest-dark);
+    margin-bottom: 8px;
+  }
+
+  .status-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #ff9800;
+  }
+  .dot.online { background-color: #4caf50; animation: pulse 1.5s infinite; }
+  .dot.offline { background-color: #e53935; }
+  @keyframes pulse {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+  }
+
+  .bingo-card {
+    background: white;
+    border: 2px solid rgba(109, 76, 65, 0.15);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 0px rgba(109, 76, 65, 0.05);
+    text-align: left;
+    font-size: 16px;
+    line-height: 1.8;
+  }
+
+  .bingo-numbers {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-top: 16px;
+  }
+  @media(min-width: 480px) {
+    .bingo-numbers { grid-template-columns: repeat(10, 1fr); }
+  }
+
+  .bingo-ball {
+    background: radial-gradient(circle at 35% 30%, #fffde7, #ffb300 60%, #ff8f00);
+    border: 2px solid var(--wood-dark);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Fredoka One', sans-serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--wood-dark);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin: 0 auto;
+    animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+  }
+  @keyframes pop {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .refresh-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(to bottom, #81c784, #4caf50);
+    color: white;
+    font-weight: 900;
+    font-size: 16px;
+    border: 3px solid var(--forest-dark);
+    border-radius: 16px;
+    cursor: pointer;
+    box-shadow: 0 6px 0px var(--forest-dark);
+  }
+  .refresh-btn:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--forest-dark); }
+</style>
+</head>
+<body>
+
+<a href="./index.html" class="back-btn">⬅️ 返回幸運搖號機</a>
+
+<div class="container">
+  <header>
+    <h1>🍄 BINGO BINGO 即時看板</h1>
+    <div class="status-header">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText" style="font-weight:700;">連線檢查中...</span>
+    </div>
+  </header>
+
+  <div class="bingo-card" id="bingoDisplay">
+    <div style="text-align:center; color:#757575;">正在向後端 Python 伺服器探測最新開獎結果...</div>
+  </div>
+
+  <button class="refresh-btn" onclick="checkApiHealth()">🔄 手動重新整理數據</button>
+</div>
+
+<script>
+  async function checkApiHealth() {
+    const dot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const bingoDisplay = document.getElementById('bingoDisplay');
+    
+    try {
+      const res = await fetch('http://127.0.0.1:8000/api/v1/bingo/latest');
+      const json = await res.json(); 
+      
+      if (json.status === "success") {
+        dot.className = "dot online";
+        statusText.textContent = "台彩 API 正常連線中";
+        statusText.style.color = "#4caf50";
+        
+        const b = json.data;
+        let ballsHtml = b.numbers.map((num, idx) => 
+          `<span class="bingo-ball" style="animation-delay: ${idx * 0.03}s">${String(num).padStart(2,'0')}</span>`
+        ).join('');
+        
+        bingoDisplay.innerHTML = `
+          <div style="font-size: 18px; margin-bottom: 10px;">
+            <strong>真實 Bingo 數據同期號：</strong> 
+            <span style="color:var(--berry-red); font-weight:900; font-size:22px;">${b.draw_term}</span> 
+            <span style="color:#78909c; font-size:14px; margin-left:10px;">(${b.draw_date})</span>
+          </div>
+          <div style="background: rgba(109,76,65,0.05); padding: 12px; border-radius: 12px;">
+            <strong>指標實況：</strong> 猜大小【<span style="color:var(--forest-dark); font-weight:900;">${b.super_size}</span>】 | ${b.multiplier}
+          </div>
+          <div style="margin-top:16px; font-weight:900; color:var(--wood-dark); font-size:16px;">🌿 官方開出獎號盤面：</div>
+          <div class="bingo-numbers">${ballsHtml}</div>
+        `;
+      } else {
+        dot.className = "dot offline";
+        statusText.textContent = "台彩 API 結構異常";
+        statusText.style.color = "#e53935";
+        bingoDisplay.innerHTML = `<span style="color:#e53935;">⚠️ 後端錯誤回報：${json.message || '未知錯誤'}</span>`;
+      }
+    } catch (err) {
+      dot.className = "dot offline";
+      statusText.textContent = "後端伺服器斷線";
+      statusText.style.color = "#e53935";
+      bingoDisplay.innerHTML = `<span style="color:#e53935;">❌ 無法與本地 Python 伺服器取得聯繫。請確認 PowerShell 的 uvicorn 有正常啟動。</span>`;
+    }
+  }
+
+  window.onload = checkApiHealth;
+</script>
+
+</body>
+</html>
