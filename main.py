@@ -20,7 +20,18 @@ app.add_middleware(
     allow_headers=["*"],      
 )
 
+# 【核心功能】：全域變數存歷史紀錄
+bingo_history = [] 
 
+def api_response(data):
+    """封裝統一的回傳格式"""
+    return {
+        "status": "success",
+        "timestamp": datetime.now().isoformat(),
+        "request_id": str(uuid4()),
+        "data": data
+    }
+    
 # =====================================================================
 # 0. 補回：根目錄健康檢查 (原本最基礎的 API 測試)
 # =====================================================================
@@ -166,60 +177,46 @@ def super_power_lotto(count: int = 5):
 
 
 # =====================================================================
-# 4. BINGO BINGO 即時串接區 (完美對接台彩全新欄位版)
+# BINGO BINGO 即時串接區 (修正版：支援 limit 參數)
 # =====================================================================
 @app.get("/api/v1/bingo/latest")
-def bingo_latest():
-    """獲取台彩官方最新一期 BINGO BINGO 開獎結果 (全面對接新版欄位)"""
+def bingo_latest(limit: int = 1):
+    global bingo_history
     url = "https://api.taiwanlottery.com/TLCAPIWeB/Lottery/LatestBingoResult"
+    
     try:
         result = requests.get(url, timeout=10)
         result.raise_for_status()
         data = result.json()
         
         if "content" not in data or "lotteryBingoLatestPost" not in data["content"]:
-            return {
-                "status": "error",
-                "message": "台彩回傳的 JSON 最外層結構已改變",
-                "raw_data_preview": data  
-            }
+            return {"status": "error", "message": "API 結構異常"}
             
         bingo = data["content"]["lotteryBingoLatestPost"]
         
-        # 1. 讀取期號與新版日期
-        draw_term = bingo.get("drawTerm", "未知期號")
+        # 整理新的一期資料
+        new_entry = {
+            "draw_term": bingo.get("drawTerm"),
+            "draw_date": bingo.get("dDate", "").split("T")[0],
+            "numbers": sorted([int(n) for n in (bingo.get("bigShowOrder") or [])]),
+            "super_size": bingo.get("prizeNum", {}).get("highLow", "無"),
+            "multiplier": f"單雙:{bingo.get('prizeNum', {}).get('oddEven', '無')} | 超級眼:{bingo.get('prizeNum', {}).get('bullEye', '無')}"
+        }
         
-        # 處理新版日期 dDate (切出前面的年月日 2026-06-20)
-        raw_date = bingo.get("dDate", "")
-        draw_date = raw_date.split("T")[0] if "T" in raw_date else datetime.now().strftime("%Y-%m-%d")
-        
-        # 2. 讀取新版排序號碼 (優先抓已經排序好的 bigShowOrder)
-        draw_order_arr = bingo.get("bigShowOrder") or bingo.get("openShowOrder") or []
-        try:
-            numbers = sorted([int(n) for n in draw_order_arr]) if draw_order_arr else []
-        except Exception:
-            numbers = draw_order_arr 
+        # 如果是新的一期，則存入 history 並保持只有最近 4 筆
+        if not bingo_history or bingo_history[-1]["draw_term"] != new_entry["draw_term"]:
+            bingo_history.append(new_entry)
+            bingo_history = bingo_history[-4:] 
             
-        # 3. 讀取內層的 prizeNum 猜大小與超級獎號 (超級獎號改對應到黃金超級眼 bullEye)
-        prize_num = bingo.get("prizeNum", {})
-        super_size = prize_num.get("highLow", "無")  # 大/小
-        multiplier = f"單雙:{prize_num.get('oddEven', '無')} | 超級眼:{prize_num.get('bullEye', '無')}"
-        
-        return api_response({
-            "draw_term": draw_term,
-            "draw_date": draw_date,
-            "numbers": numbers, 
-            "super_size": super_size, 
-            "multiplier": multiplier
-        })
+        # 回傳指定筆數 (反轉順序讓最新一期排在最上面)
+        return api_response(bingo_history[-limit:][::-1])
         
     except Exception as e:
-        return {
-            "status": "error",
-            "message": f"無法串接台彩 API 來源: {str(e)}"
-        }
+        return {"status": "error", "message": str(e)}
 
 # 當作主程式執行時啟動本地伺服器
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    
+    

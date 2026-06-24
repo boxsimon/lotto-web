@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>橡子森林 — BINGO BINGO 投注機</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap');
+  :root { --bg-sky: #e0f2fe; --wood-dark: #6d4c41; --wood-light: #fbf4e9; --acorn-gold: #ffca28; }
+  body { background: var(--bg-sky); font-family: 'Noto Sans TC', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+  .app-container { background-color: var(--wood-light); width: 1000px; border-radius: 20px; display: flex; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 4px solid var(--wood-dark); }
+  .left-panel { flex: 7; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+  .star-bar-top { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; background: white; padding: 5px; border-radius: 8px; border: 2px solid var(--wood-dark); }
+  .star-btn { background: white; border: 1px solid #ddd; border-radius: 5px; padding: 8px 0; font-weight: bold; cursor: pointer; }
+  .star-btn.active { background: var(--acorn-gold); color: black; border-color: var(--wood-dark); }
+  .sub-control-bar { display: flex; justify-content: space-between; align-items: center; }
+  .number-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; background: white; padding: 15px; border-radius: 10px; border: 2px solid #ddd; }
+  .num-btn { background: white; border: 2px solid #ddd; border-radius: 50%; aspect-ratio: 1/1; font-weight: 900; cursor: pointer; }
+  .num-btn.selected { background: #4a90e2; color: white; border-color: #357abd; }
+  .right-panel { flex: 3; background: #fffdf5; border-left: 3px solid var(--wood-dark); padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+  .bet-row { display: flex; align-items: center; gap: 10px; }
+  .bet-label { width: 100%; height: 45px; background: var(--wood-dark); color: white; display: flex; justify-content: center; align-items: center; border-radius: 8px; font-weight: bold; }
+  .dot-group { display: flex; gap: 10px; }
+  .dot-btn { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--wood-dark); background: white; font-weight: bold; cursor: pointer; }
+  .dot-btn.active { background: var(--acorn-gold); border-color: var(--wood-dark); }
+  .total-price { background: var(--wood-dark); color: white; border-radius: 8px; padding: 15px; text-align: center; font-size: 28px; font-weight: 900; margin-top: auto; }
+  .print-btn { background-color: #4caf50; color: white; border: none; padding: 15px; font-size: 20px; font-weight: 900; cursor: pointer; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="left-panel">
+    <div class="star-bar-top" id="starBar"></div>
+    <div class="sub-control-bar">
+      <div style="font-weight:bold">BINGO BINGO 投注盤</div>
+      <div>
+        <button onclick="randomPick()">隨機選號</button>
+        <button onclick="clearAll()">清除</button>
+      </div>
+    </div>
+    <div class="number-grid" id="numberGrid"></div>
+  </div>
+
+  <div class="right-panel">
+    <div class="bet-row"><div class="bet-label">大小</div><div class="dot-group" id="sizeGroup"><button class="dot-btn" onclick="selectDot(this)">大</button><button class="dot-btn" onclick="selectDot(this)">小</button></div></div>
+    <div class="bet-row"><div class="bet-label">單雙</div><div class="dot-group" id="oddEvenGroup"><button class="dot-btn" onclick="selectDot(this)">單</button><button class="dot-btn" onclick="selectDot(this)">雙</button></div></div>
+    
+    <div class="bet-row" style="flex-direction:column; align-items:flex-start;">
+      <div class="bet-label">倍數: <input type="number" id="multiplierInput" value="1" min="1" oninput="updateTotal()" style="width:60px; margin-left:10px; border-radius:5px; border:none; padding:5px;"></div>
+    </div>
+    
+    <div class="bet-row" style="flex-direction:column; align-items:flex-start;">
+      <div class="bet-label" style="width:100%">期數: <span id="termValue">1</span></div>
+      <input type="range" id="termRange" min="1" max="12" value="1" style="width:100%" oninput="document.getElementById('termValue').textContent=this.value; updateTotal()">
+    </div>
+    
+    <div id="potentialWin" style="font-weight:bold; color:red; text-align:center;">預計中獎: $0</div>
+    <div class="total-price" id="totalPrice">0 元</div>
+	<div class="total-price" id="totalPrice">0 元</div>
+
+	<div class="button-group">
+    <button class="print-btn" onclick="printTicket()">
+        確認列印
+    </button>
+
+    <a href="./index.html" class="back-btn">
+        🏠 返回首頁
+    </a>
+</div>
+
+<script>
+  let selectedStar = 1;
+  const ODDS = { 10: 200000, 9: 40000, 8: 20000, 7: 3200, 6: 1000, 5: 300, 4: 40, 3: 20, 2: 3, 1: 2 };
+
+  // 初始化星數與號碼
+  const starBar = document.getElementById('starBar');
+  for(let i=1; i<=10; i++) starBar.innerHTML += `<button class="star-btn ${i==1?'active':''}" onclick="selectStar(this, ${i})">${i}星</button>`;
+  
+  const grid = document.getElementById('numberGrid');
+  for (let i = 1; i <= 80; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'num-btn'; btn.textContent = i;
+    btn.onclick = function() {
+        const count = document.querySelectorAll('.num-btn.selected').length;
+        if (!this.classList.contains('selected') && count >= selectedStar) return;
+        this.classList.toggle('selected');
+        updateTotal();
+    };
+    grid.appendChild(btn);
+  }
+
+  function randomPick() {
+    clearAll();
+    const all = Array.from(document.querySelectorAll('.num-btn'));
+    all.sort(() => 0.5 - Math.random()).slice(0, selectedStar).forEach(b => b.classList.add('selected'));
+    updateTotal();
+  }
+
+  function selectStar(btn, val) {
+    selectedStar = val;
+    document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    clearAll();
+  }
+
+  function selectDot(btn) {
+    btn.parentElement.querySelectorAll('.dot-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateTotal();
+  }
+
+  function clearAll() {
+    document.querySelectorAll('.num-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelectorAll('.dot-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('multiplierInput').value = 1;
+    document.getElementById('termRange').value = 1;
+    document.getElementById('termValue').textContent = 1;
+    updateTotal();
+  }
+
+  function updateTotal() {
+    const selectedCount = document.querySelectorAll('.num-btn.selected').length;
+    const term = parseInt(document.getElementById('termRange').value);
+    const multiplier = parseInt(document.getElementById('multiplierInput').value) || 1;
+    const activeDots = document.querySelectorAll('.dot-btn.active');
+    
+    // 投注成本 = (號碼注數 + 大小單雙注數) * 25元 * 倍數 * 期數
+    const totalCost = ((selectedCount > 0 ? 25 : 0) + (activeDots.length * 25)) * multiplier * term;
+    document.getElementById('totalPrice').textContent = totalCost + " 元";
+    
+    // 預計獎金計算
+    let totalPrize = 0;
+    
+    // 號碼賠率
+    if (selectedCount === selectedStar && ODDS[selectedStar]) {
+        totalPrize += ODDS[selectedStar] * 25 * multiplier;
+    }
+    
+    // 大小單雙賠率 (6倍)
+    if (activeDots.length > 0) {
+        totalPrize += (activeDots.length * 25 * 6 * multiplier);
+    }
+    
+    // 總預計獎金需乘上期數
+    const finalPrize = totalPrize * term;
+    document.getElementById('potentialWin').textContent = `預計中獎: $${Math.floor(finalPrize)}`;
+  }
+
+  function printTicket() { alert("確認列印：" + document.getElementById('totalPrice').textContent); }
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>賓果BINGO中獎倍率表</title>
+    <style>
+        body { font-family: 'Noto Sans TC', sans-serif; padding: 20px; background: #fdfdfd; }
+        h2 { text-align: center; color: #333; }
+        table { width: 100%; max-width: 900px; margin: 20px auto; border-collapse: collapse; border: 1px solid #ddd; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background-color: #f9f9f9; color: #333; }
+        tr:hover { background-color: #f1f1f1; }
+    </style>
+</head>
+<body>
+
+<h2>賓果BINGO中獎倍率</h2>
+<table>
+    <thead>
+        <tr>
+            <th>玩法</th>
+            <th>獎號對中情況</th>
+            <th>固定倍率</th>
+            <th>單注獎金</th>
+        </tr>
+    </thead>
+    <tbody id="oddsBody">
+        </tbody>
+</table>
+
+<script>
+    const BINGO_DATA = [
+        { star: "10星", hit: "中10", rate: "200,000", prize: "$5,000,000" },
+        { star: "10星", hit: "中9",  rate: "10,000",  prize: "$250,000" },
+        { star: "10星", hit: "中8",  rate: "1,000",   prize: "$25,000" },
+        { star: "10星", hit: "中7",  rate: "100",     prize: "$2,500" },
+        { star: "10星", hit: "中6",  rate: "10",      prize: "$250" },
+        { star: "10星", hit: "中5",  rate: "1",       prize: "$25" },
+        { star: "10星", hit: "中0",  rate: "1",       prize: "$25" },
+        { star: "9星",  hit: "中9",  rate: "40,000",  prize: "$1,000,000" },
+        { star: "9星",  hit: "中8",  rate: "4,000",   prize: "$100,000" },
+        { star: "9星",  hit: "中7",  rate: "120",     prize: "$3,000" },
+        { star: "9星",  hit: "中6",  rate: "20",      prize: "$500" },
+        { star: "9星",  hit: "中5",  rate: "4",       prize: "$100" },
+        { star: "9星",  hit: "中4",  rate: "1",       prize: "$25" },
+        { star: "9星",  hit: "中0",  rate: "1",       prize: "$25" },
+        { star: "8星",  hit: "中8",  rate: "20,000",  prize: "$500,000" },
+        { star: "8星",  hit: "中7",  rate: "800",     prize: "$20,000" },
+        { star: "8星",  hit: "中6",  rate: "40",      prize: "$1,000" },
+        { star: "8星",  hit: "中5",  rate: "8",       prize: "$200" },
+        { star: "8星",  hit: "中4",  rate: "1",       prize: "$25" },
+        { star: "8星",  hit: "中0",  rate: "1",       prize: "$25" },
+        { star: "7星",  hit: "中7",  rate: "3,200",   prize: "$80,000" },
+        { star: "7星",  hit: "中6",  rate: "120",     prize: "$3,000" },
+        { star: "7星",  hit: "中5",  rate: "12",      prize: "$300" },
+        { star: "7星",  hit: "中4",  rate: "2",       prize: "$50" },
+        { star: "7星",  hit: "中3",  rate: "1",       prize: "$25" },
+        { star: "6星",  hit: "中6",  rate: "1,000",   prize: "$25,000" },
+        { star: "6星",  hit: "中5",  rate: "40",      prize: "$1,000" },
+        { star: "6星",  hit: "中4",  rate: "8",       prize: "$200" },
+        { star: "6星",  hit: "中3",  rate: "1",       prize: "$25" },
+        { star: "5星",  hit: "中5",  rate: "300",     prize: "$7,500" },
+        { star: "5星",  hit: "中4",  rate: "20",      prize: "$500" },
+        { star: "5星",  hit: "中3",  rate: "2",       prize: "$50" },
+        { star: "4星",  hit: "中4",  rate: "40",      prize: "$1,000" },
+        { star: "4星",  hit: "中3",  rate: "4",       prize: "$100" },
+        { star: "4星",  hit: "中2",  rate: "1",       prize: "$25" },
+        { star: "3星",  hit: "中3",  rate: "20",      prize: "$500" },
+        { star: "3星",  hit: "中2",  rate: "2",       prize: "$50" },
+        { star: "2星",  hit: "中2",  rate: "3",       prize: "$75" },
+        { star: "2星",  hit: "中1",  rate: "1",       prize: "$25" },
+        { star: "1星",  hit: "中1",  rate: "2",       prize: "$50" },
+        { star: "額外", hit: "超級獎號", rate: "48",     prize: "$1,200" },
+        { star: "額外", hit: "猜大小",   rate: "6",       prize: "$150" },
+        { star: "額外", hit: "猜單雙",   rate: "6",       prize: "$150" }
+    ];
+
+    const body = document.getElementById('oddsBody');
+    BINGO_DATA.forEach(item => {
+        body.innerHTML += `<tr>
+            <td>${item.star}</td>
+            <td>${item.hit}</td>
+            <td>${item.rate}</td>
+            <td>${item.prize}</td>
+        </tr>`;
+    });
+</script>
+
+</body>
+</html>

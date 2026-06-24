@@ -3,169 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>橡子森林 — BINGO BINGO 即時開獎實況</title>
+<title>橡子森林 — BINGO BINGO 即時看板</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Noto+Sans+TC:wght=500;700;900&display=swap');
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg-sky:      #e0f2fe; 
-    --forest-dark: #2d5a27; 
-    --forest-leaf: #4c9e45; 
-    --wood-light:  #fbf4e9; 
-    --wood-dark:   #6d4c41; 
-    --acorn-gold:  #ffb300; 
-    --berry-red:   #e53935; 
-  }
-
-  body {
-    background: var(--bg-sky);
-    color: var(--wood-dark);
-    font-family: 'Noto Sans TC', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 20px;
-    background-image: linear-gradient(to bottom, #bae6fd 0%, #e0f2fe 40%, #f0fdf4 70%, #dcfce7 100%);
-  }
-
-  .container {
-    background: var(--wood-light);
-    border: 4px solid var(--wood-dark);
-    border-radius: 28px;
-    padding: 32px;
-    width: 100%;
-    max-width: 800px;
-    box-shadow: 0 16px 0px rgba(109,76,65,0.2), 0 12px 28px rgba(109, 76, 65, 0.15);
-    text-align: center;
-  }
-
-  header { margin-bottom: 24px; }
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Noto+Sans+TC:wght@500;700;900&display=swap');
+  :root { --bg-sky: #e0f2fe; --berry-red: #e53935; --wood-dark: #6d4c41; --wood-light: #fbf4e9; }
+  body { background: var(--bg-sky); font-family: 'Noto Sans TC', sans-serif; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; min-height: 100vh; }
   
-  .back-btn {
-    display: inline-block;
-    padding: 10px 20px;
-    background: white;
-    color: var(--wood-dark);
-    text-decoration: none;
-    font-weight: 700;
-    border: 2px solid var(--wood-dark);
-    border-radius: 50px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 0 var(--wood-dark);
-    transition: transform 0.1s;
-  }
-  .back-btn:active { transform: translateY(4px); box-shadow: 0 0px 0 var(--wood-dark); }
+  /* 放大的返回按鈕 */
+  .back-btn { display: inline-block; margin-bottom: 30px; padding: 15px 40px; background: white; border: 4px solid var(--wood-dark); border-radius: 50px; font-weight: 900; font-size: 20px; color: var(--wood-dark); text-decoration: none; box-shadow: 0 6px 0px var(--wood-dark); transition: 0.2s; }
+  .back-btn:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--wood-dark); }
+  
+  .container { max-width: 960px; width: 100%; }
+  
+  /* 縮小的開獎時間與手動整理區 */
+  .timer-container { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 25px; }
+  .countdown { background: white; padding: 10px 20px; border-radius: 12px; font-size: 16px; font-weight: 700; color: var(--berry-red); border: 2px solid var(--berry-red); }
+  .refresh-btn { padding: 10px 20px; background: var(--wood-dark); color: white; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; }
 
-  h1 {
-    font-size: 32px;
-    font-weight: 900;
-    color: var(--forest-dark);
-    margin-bottom: 8px;
-  }
-
-  .status-header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-  .dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background-color: #ff9800;
-  }
-  .dot.online { background-color: #4caf50; animation: pulse 1.5s infinite; }
-  .dot.offline { background-color: #e53935; }
-  @keyframes pulse {
-    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
-    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); }
-    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
-  }
-
-  /* ⏳ 倒數計時器外觀樣式 */
-  .countdown-badge {
-    background: rgba(109, 76, 65, 0.1);
-    padding: 6px 14px;
-    border-radius: 30px;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--wood-dark);
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    border: 1px solid rgba(109, 76, 65, 0.15);
-  }
-  .countdown-time {
-    color: var(--berry-red);
-    font-family: 'Fredoka One', sans-serif;
-    font-size: 16px;
-    letter-spacing: 0.5px;
-  }
-
-  .bingo-card {
-    background: white;
-    border: 2px solid rgba(109, 76, 65, 0.15);
-    border-radius: 20px;
-    padding: 24px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 0px rgba(109, 76, 65, 0.05);
-    text-align: left;
-    font-size: 16px;
-    line-height: 1.8;
-  }
-
-  .bingo-numbers {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 12px;
-    margin-top: 16px;
-  }
-  @media(min-width: 480px) {
-    .bingo-numbers { grid-template-columns: repeat(10, 1fr); }
-  }
-
-  .bingo-ball {
-    background: radial-gradient(circle at 35% 30%, #fffde7, #ffb300 60%, #ff8f00);
-    border: 2px solid var(--wood-dark);
-    border-radius: 50%;
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Fredoka One', sans-serif;
-    font-size: 18px;
-    font-weight: 900;
-    color: var(--wood-dark);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    margin: 0 auto;
-    animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-  }
-  @keyframes pop {
-    0% { transform: scale(0); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  .refresh-btn {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(to bottom, #81c784, #4caf50);
-    color: white;
-    font-weight: 900;
-    font-size: 16px;
-    border: 3px solid var(--forest-dark);
-    border-radius: 16px;
-    cursor: pointer;
-    box-shadow: 0 6px 0px var(--forest-dark);
-    transition: transform 0.1s;
-  }
-  .refresh-btn:active { transform: translateY(4px); box-shadow: 0 2px 0px var(--forest-dark); }
+  /* 田字布局容器 */
+  #bingoDisplay { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .bingo-card { background: var(--wood-light); border: 4px solid var(--wood-dark); border-radius: 28px; padding: 24px; box-shadow: 0 12px 28px rgba(109, 76, 65, 0.15); }
+  .ball { width: 50px; height: 50px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fffde7, #ffca28 60%, #ffa000); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; color: var(--wood-dark); box-shadow: 0 6px 12px rgba(109, 76, 65, 0.3); }
+  .numbers-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 20px; }
 </style>
 </head>
 <body>
@@ -173,133 +32,60 @@
 <a href="./index.html" class="back-btn">⬅️ 返回幸運搖號機</a>
 
 <div class="container">
-  <header>
-    <h1>🍄 BINGO BINGO 即時看板</h1>
-    <div class="status-header">
-      <span class="dot" id="statusDot"></span>
-      <span id="statusText" style="font-weight:700;">連線檢查中...</span>
-      
-      <span class="countdown-badge">
-        ⏱️ 台彩開獎倒數：<span class="countdown-time" id="timerDisplay">--:--</span>
-      </span>
-    </div>
-  </header>
-
-  <div class="bingo-card" id="bingoDisplay">
-    <div style="text-align:center; color:#757575;">正在向後端 Python 伺服器探測最新開獎結果...</div>
+  <div class="timer-container">
+    <div class="countdown">⏱️ 下期開獎倒數：<span id="timerDisplay">00:00</span></div>
+    <button class="refresh-btn" onclick="checkApiHealth()">🔄 手動整理</button>
   </div>
-
-  <button class="refresh-btn" onclick="manualRefresh()">🔄 手動重新整理數據</button>
+  <div id="bingoDisplay">正在載入數據...</div>
 </div>
 
 <script>
-  let timerInterval = null;
-
-  // 🕒 核心邏輯：動態計算距離台彩下一次官方開獎（每5分鐘一整除期）還剩多少秒
-  function getSecondsToNextDraw() {
-    const now = new Date();
-    const minutes = now.getMinutes();
-    const seconds = now.getSeconds();
-    
-    // 計算當前這個 5 分鐘區段已經過去了多少秒
-    const secondsPassedInPeriod = (minutes % 5) * 60 + seconds;
-    
-    // 距離下一個 5 分鐘整除時間點（例如 05分00秒、10分00秒）還差多少秒
-    let timeLeft = (5 * 60) - secondsPassedInPeriod;
-    
-    // 【貼心緩衝 +3 秒】：因為台彩官方開出了之後，Python 爬蟲後端需要 2~3 秒的處理與網路延遲，
-    // 這裡加上 3 秒，讓前端在 00:03 秒時才發送 fetch，這樣能百分之百抓到最新的號碼，不會拿到上一期的舊資料！
-    return timeLeft + 3; 
-  }
-
-  // 啟動跟官方完全同步的秒級校準計時器
+  // 1. 倒數計時
   function startTimer() {
-    clearInterval(timerInterval); // 防呆清除舊計時器
-
-    function tick() {
-      let timeLeft = getSecondsToNextDraw();
-      
-      // 如果加了 3 秒緩衝導致算出來的秒數大於 5 分鐘 (300秒)，代表剛剛好跨過開獎點，校正回倒數
-      if (timeLeft > 300) {
-        timeLeft = timeLeft - 300;
-      }
-
-      const mins = Math.floor(timeLeft / 60);
-      const secs = timeLeft % 60;
-      
-      // 將倒數即時渲染到畫面上
+    setInterval(() => {
+      const now = new Date();
+      const timeLeft = (5 - (now.getMinutes() % 5)) * 60 - now.getSeconds() + 3;
+      const m = Math.floor(timeLeft / 60);
+      const s = timeLeft % 60;
       document.getElementById('timerDisplay').textContent = 
-        `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-
-      // 🎯 當時間完美歸零（也就是台彩官方開獎 + 3秒缓衝）
-      if (mins === 0 && secs === 0) {
-        setTimeout(() => {
-          checkApiHealth(); // 背景觸發更新，不干擾使用者
-        }, 500);
-      }
-    }
-
-    tick(); // 剛進網頁時先立刻跑一次
-    timerInterval = setInterval(tick, 1000); // 隨後每秒都執行 tick() 校準
+        `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      if (m === 0 && s === 0) checkApiHealth();
+    }, 1000);
   }
 
-  // 當使用者手動點擊「重新整理」
-  function manualRefresh() {
-    checkApiHealth();
-    // 這裡不需要重設時間，因為它是讀取電腦內部的系統時鐘，它會一直跟官方保持完美的絕對同步！
-  }
-
-  // 呼叫 FastAPI 獲取最新開獎紀錄
+  // 2. 資料獲取與渲染
+// 修改後的 checkApiHealth 函式
   async function checkApiHealth() {
-    const dot = document.getElementById('statusDot');
-    const statusText = document.getElementById('statusText');
     const bingoDisplay = document.getElementById('bingoDisplay');
+    // 在 URL 後面加上 Date.now() 確保每次呼叫都是新的請求，不會被快取
+    const apiUrl = `http://127.0.0.1:8000/api/v1/bingo/latest?limit=4&_t=${Date.now()}`;
     
     try {
-      const res = await fetch('http://127.0.0.1:8000/api/v1/bingo/latest');
+      const res = await fetch(apiUrl);
       const json = await res.json(); 
-      
       if (json.status === "success") {
-        dot.className = "dot online";
-        statusText.textContent = "台彩 API 正常連線中";
-        statusText.style.color = "#4caf50";
-        
-        const b = json.data;
-        let ballsHtml = b.numbers.map((num, idx) => 
-          `<span class="bingo-ball" style="animation-delay: ${idx * 0.03}s">${String(num).padStart(2,'0')}</span>`
-        ).join('');
-        
-        bingoDisplay.innerHTML = `
-          <div style="font-size: 18px; margin-bottom: 10px;">
-            <strong>真實 Bingo 數據同期號：</strong> 
-            <span style="color:var(--berry-red); font-weight:900; font-size:22px;">${b.draw_term}</span> 
-            <span style="color:#78909c; font-size:14px; margin-left:10px;">(${b.draw_date})</span>
+        bingoDisplay.innerHTML = json.data.map((b, idx) => `
+          <div class="bingo-card" style="border-left: 8px solid ${idx === 0 ? 'var(--berry-red)' : '#ccc'}">
+            <div style="font-size: 18px; font-weight: bold;">第 ${b.draw_term} 期</div>
+            <div style="font-size: 14px; color: #555;">指標：${b.super_size} | ${b.multiplier}</div>
+            <div class="numbers-grid">
+              ${b.numbers.map(n => `<div class="ball">${n}</div>`).join('')}
+            </div>
           </div>
-          <div style="background: rgba(109,76,65,0.05); padding: 12px; border-radius: 12px;">
-            <strong>指標實況：</strong> 猜大小【<span style="color:var(--forest-dark); font-weight:900;">${b.super_size}</span>】 | ${b.multiplier}
-          </div>
-          <div style="margin-top:16px; font-weight:900; color:var(--wood-dark); font-size:16px;">🌿 官方開出獎號盤面：</div>
-          <div class="bingo-numbers">${ballsHtml}</div>
-        `;
+        `).join('');
       } else {
-        dot.className = "dot offline";
-        statusText.textContent = "台彩 API 結構異常";
-        statusText.style.color = "#e53935";
-        bingoDisplay.innerHTML = `<span style="color:#e53935;">⚠️ 後端錯誤回報：${json.message || '未知錯誤'}</span>`;
+        bingoDisplay.innerHTML = "❌ 資料獲取失敗：" + json.message;
       }
-    } catch (err) {
-      dot.className = "dot offline";
-      statusText.textContent = "後端伺服器斷線";
-      statusText.style.color = "#e53935";
-      bingoDisplay.innerHTML = `<span style="color:#e53935;">❌ 無法與本地 Python 伺服器取得聯繫。請確認 PowerShell 的 uvicorn 有正常啟動。</span>`;
+    } catch (err) { 
+      bingoDisplay.innerHTML = "❌ 連線失敗，請檢查後端是否啟動"; 
+      console.error(err);
     }
   }
 
-  window.onload = function() {
-    checkApiHealth(); // 開啟網頁先更新一次畫面
-    startTimer();     // 啟動與台彩官方連動的計時器
-  };
-</script>
+  // 3. 每三分鐘自動更新 (180,000 毫秒)
+  setInterval(checkApiHealth, 180000);
 
+  window.onload = () => { startTimer(); checkApiHealth(); };
+</script>
 </body>
 </html>

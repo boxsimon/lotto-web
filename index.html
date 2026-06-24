@@ -317,7 +317,7 @@
 <header>
   <div class="badge">🍃 森林廣播 API 連線版</div>
   <h1 id="mainTitle">🌰 大樂透幸運選號</h1>
-  <p class="subtitle" id="subTitle">呼叫 /superlotto 獲取多組大樂透號碼</p>
+  <p class="subtitle" id="subTitle"></p>
 </header>
 
 <div class="tabs">
@@ -326,17 +326,20 @@
   <button class="tab-btn" id="tab-powerlotto" onclick="switchMode('powerlotto')">✨ 威力彩</button>
   
   <a href="./bingo.html" class="tab-btn" style="text-decoration: none; text-align: center; background: var(--acorn-gold); color: var(--wood-dark); border: 2px solid var(--wood-dark); line-height: 1.2;">🍄 BINGO 實況</a>
+
+  <a href="./bingo_bet.html" class="tab-btn" style="text-decoration: none; text-align: center; background: #ff7043; color: white; border: 2px solid var(--wood-dark); line-height: 1.2;">🎯 BINGO 投注</a>
 </div>
 
 <div class="ticket">
   <div class="control-panel" id="controlPanel">
     <label for="countSelect">🪵 挑選你要的注數：</label>
     <select id="countSelect" onchange="reset()">
-      <option value="1">1 注袋</option>
-      <option value="2">2 注袋</option>
-      <option value="3" selected>3 注袋</option>
-      <option value="5">5 注袋</option>
-      <option value="10">10 注袋</option>
+      <option value="1" selected>1 注</option>
+      <option value="2">2 注</option>
+      <option value="3">3 注</option>
+	  <option value="4">4 注</option>
+      <option value="5">5 注</option>
+      <option value="10">10 注</option>
     </select>
   </div>
 
@@ -356,7 +359,7 @@
   const modeConfigs = {
     superlotto: {
       title: '🌰 大樂透幸運選號',
-      subtitle: '呼叫 /superlotto 獲取多組大樂透號碼',
+      subtitle: '',
       gridTotal: 49,
       mainPick: 6,
       hasSpecial: true,
@@ -365,7 +368,7 @@
     },
     '539': {
       title: '🐾 今彩 539 森林選號',
-      subtitle: '呼叫 /539/super 獲取多組 539 幸運號碼',
+      subtitle: '',
       gridTotal: 39,
       mainPick: 5,
       hasSpecial: false,
@@ -374,7 +377,7 @@
     },
     powerlotto: {
       title: '✨ 威力彩雷霆選號',
-      subtitle: '呼叫 /powerlotto/super 獲取多組威力彩號碼',
+      subtitle: '',
       gridTotal: 38,       
       mainPick: 6,         
       hasSpecial: true,    
