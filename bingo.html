@@ -25,6 +25,23 @@
   .bingo-card { background: var(--wood-light); border: 4px solid var(--wood-dark); border-radius: 28px; padding: 24px; box-shadow: 0 12px 28px rgba(109, 76, 65, 0.15); }
   .ball { width: 50px; height: 50px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fffde7, #ffca28 60%, #ffa000); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 20px; color: var(--wood-dark); box-shadow: 0 6px 12px rgba(109, 76, 65, 0.3); }
   .numbers-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 20px; }
+
+   @media (max-width: 768px) {
+    /* 讓看板容器寬度填滿手機螢幕 */
+    #bingoDisplay {
+        width: 95% !important;
+        margin: 0 auto !important;
+    }
+    /* 讓每一張開獎卡片在手機上撐滿寬度 */
+    .bingo-card {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    /* 調整數字球的排列，手機版建議 5 個一行，避免太擠 */
+    .numbers-grid {
+        grid-template-columns: repeat(5, 1fr) !important;
+    }
+}
 </style>
 </head>
 <body>
@@ -61,40 +78,41 @@ async function checkApiHealth() {
     const apiUrl = `http://127.0.0.1:8000/api/v1/bingo/history?limit=4&_t=${Date.now()}`;
     
     try {
-        const res = await fetch(apiUrl);
-        const json = await res.json(); 
-        
-        // 這裡抓取後端回傳的紀錄陣列
-        const records = json.data && json.data.records ? json.data.records : [];
-        
-        if (records.length > 0) {
-            bingoDisplay.innerHTML = records.map((b, idx) => `
-                <div class="bingo-card" style="background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 8px solid ${idx === 0 ? '#e53935' : '#ccc'}; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <span style="font-size: 1.2rem; font-weight: 900; color: #333;">第 ${b.draw_term} 期</span>
-                        <span style="font-size: 0.9rem; color: #888;">${b.draw_date || ''}</span>
-                    </div>
-                    
-                    <div class="numbers-grid" style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px;">
-                        ${b.numbers.map(n => `
-                            <span style="background: #fff9c4; border: 1px solid #ffd54f; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">
-                                ${String(n).padStart(2, '0')}
-                            </span>
-                        `).join('')}
-                    </div>
-                    
-                    <div style="margin-top: 10px; font-size: 0.85rem; color: #555; border-top: 1px solid #eee; padding-top: 5px;">
-                        大小：${b.super_size || '-'} | ${b.multiplier || '-'}
-                    </div>
-                </div>
-            `).join('');
-        } else {
-            bingoDisplay.innerHTML = '<div class="bingo-card">目前暫無開獎紀錄，請稍候...</div>';
-        }
+      const res = await fetch(apiUrl);
+      const json = await res.json(); 
+      
+      // 確保從 json.data.records 讀取資料
+      const records = (json.data && json.data.records) ? json.data.records : [];
+      
+      if (records.length > 0) {
+        bingoDisplay.innerHTML = records.map((b, idx) => `
+          <div class="bingo-card" style="background: white; border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 8px solid ${idx === 0 ? '#e53935' : '#ccc'}; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="font-size: 1.2rem; font-weight: 900; color: #333;">第 ${b.draw_term} 期</span>
+                <span style="font-size: 0.9rem; color: #888;">${b.draw_date}</span>
+            </div>
+            
+            <div class="numbers-grid" style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px;">
+                ${b.numbers.map(n => `
+                    <span style="background: #fff9c4; border: 1px solid #ffd54f; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; color: #333;">
+                        ${String(n).padStart(2, '0')}
+                    </span>
+                `).join('')}
+            </div>
+            
+            <div style="margin-top: 12px; font-size: 0.85rem; color: #666; border-top: 1px solid #eee; padding-top: 8px;">
+                ${b.multiplier}
+            </div>
+          </div>
+        `).join('');
+      } else {
+        bingoDisplay.innerHTML = '<div class="bingo-card">目前暫無開獎紀錄</div>';
+      }
     } catch (err) {
-        console.error("讀取失敗:", err);
+      console.error("渲染錯誤:", err);
+      bingoDisplay.innerHTML = '<div class="bingo-card">資料讀取異常</div>';
     }
-}
+  }
 
   // 3. 每三分鐘自動更新 (180,000 毫秒)
   setInterval(checkApiHealth, 180000);

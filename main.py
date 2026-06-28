@@ -177,17 +177,10 @@ def get_bingo_history(limit: int = 4):
     conn = sqlite3.connect(DB_NAME)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    # 撈出該類型的最近 4 筆資料
-    cursor.execute("""
-        SELECT result_json FROM lottery_history 
-        WHERE lottery_type = 'bingo-bingo' 
-        ORDER BY id DESC LIMIT ?
-    """, (limit,))
-    
-    # 將存入的 JSON 字串轉回物件
+    cursor.execute("SELECT result_json FROM lottery_history WHERE lottery_type = 'bingo-bingo' ORDER BY id DESC LIMIT ?", (limit,))
     rows = [json.loads(row['result_json']) for row in cursor.fetchall()]
     conn.close()
-    return api_response({"records": rows})
+    return {"status": "success", "data": {"records": rows}}
 
 # =====================================================================
 # 啟動設定
