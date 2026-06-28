@@ -55,32 +55,46 @@
 
   // 2. 資料獲取與渲染
 // 修改後的 checkApiHealth 函式
-  async function checkApiHealth() {
+// 請直接用這段完整的函式取代原本的 checkApiHealth
+async function checkApiHealth() {
     const bingoDisplay = document.getElementById('bingoDisplay');
-    // 在 URL 後面加上 Date.now() 確保每次呼叫都是新的請求，不會被快取
-    const apiUrl = `http://127.0.0.1:8000/api/v1/bingo/latest?limit=4&_t=${Date.now()}`;
+    const apiUrl = `http://127.0.0.1:8000/api/v1/bingo/history?limit=4&_t=${Date.now()}`;
     
     try {
-      const res = await fetch(apiUrl);
-      const json = await res.json(); 
-      if (json.status === "success") {
-        bingoDisplay.innerHTML = json.data.map((b, idx) => `
-          <div class="bingo-card" style="border-left: 8px solid ${idx === 0 ? 'var(--berry-red)' : '#ccc'}">
-            <div style="font-size: 18px; font-weight: bold;">第 ${b.draw_term} 期</div>
-            <div style="font-size: 14px; color: #555;">指標：${b.super_size} | ${b.multiplier}</div>
-            <div class="numbers-grid">
-              ${b.numbers.map(n => `<div class="ball">${n}</div>`).join('')}
-            </div>
-          </div>
-        `).join('');
-      } else {
-        bingoDisplay.innerHTML = "❌ 資料獲取失敗：" + json.message;
-      }
-    } catch (err) { 
-      bingoDisplay.innerHTML = "❌ 連線失敗，請檢查後端是否啟動"; 
-      console.error(err);
+        const res = await fetch(apiUrl);
+        const json = await res.json(); 
+        
+        // 這裡抓取後端回傳的紀錄陣列
+        const records = json.data && json.data.records ? json.data.records : [];
+        
+        if (records.length > 0) {
+            bingoDisplay.innerHTML = records.map((b, idx) => `
+                <div class="bingo-card" style="background: white; border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 8px solid ${idx === 0 ? '#e53935' : '#ccc'}; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span style="font-size: 1.2rem; font-weight: 900; color: #333;">第 ${b.draw_term} 期</span>
+                        <span style="font-size: 0.9rem; color: #888;">${b.draw_date || ''}</span>
+                    </div>
+                    
+                    <div class="numbers-grid" style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px;">
+                        ${b.numbers.map(n => `
+                            <span style="background: #fff9c4; border: 1px solid #ffd54f; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">
+                                ${String(n).padStart(2, '0')}
+                            </span>
+                        `).join('')}
+                    </div>
+                    
+                    <div style="margin-top: 10px; font-size: 0.85rem; color: #555; border-top: 1px solid #eee; padding-top: 5px;">
+                        大小：${b.super_size || '-'} | ${b.multiplier || '-'}
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            bingoDisplay.innerHTML = '<div class="bingo-card">目前暫無開獎紀錄，請稍候...</div>';
+        }
+    } catch (err) {
+        console.error("讀取失敗:", err);
     }
-  }
+}
 
   // 3. 每三分鐘自動更新 (180,000 毫秒)
   setInterval(checkApiHealth, 180000);
